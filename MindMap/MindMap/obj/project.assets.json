@@ -6066,11 +6066,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\SW_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
       "projectName": "MindMapManager.WebAPI",
-      "projectPath": "D:\\SW_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
+      "projectPath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "D:\\SW_Project\\MindMap\\MindMap\\obj\\",
+      "outputPath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMap\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -6091,11 +6091,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\SW_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj": {
-              "projectPath": "D:\\SW_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj"
+            "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj": {
+              "projectPath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj"
             },
-            "D:\\SW_Project\\MindMap\\MindMapManager.Infrastructure\\MindMapManager.Infrastructure.csproj": {
-              "projectPath": "D:\\SW_Project\\MindMap\\MindMapManager.Infrastructure\\MindMapManager.Infrastructure.csproj"
+            "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMapManager.Infrastructure\\MindMapManager.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMapManager.Infrastructure\\MindMapManager.Infrastructure.csproj"
             }
           }
         }

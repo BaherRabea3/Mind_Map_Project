@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XXfWmehn+DA=",
+  "dgSpecHash": "AEOBbhJhRH0=",
   "success": true,
-  "projectFilePath": "D:\\SW_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
+  "projectFilePath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMap\\MindMapManager.WebAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\user\\.nuget\\packages\\asp.versioning.abstractions\\8.1.0\\asp.versioning.abstractions.8.1.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\asp.versioning.http\\8.1.1\\asp.versioning.http.8.1.1.nupkg.sha512",

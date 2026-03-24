@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cQOz4n5N7DU=",
+  "dgSpecHash": "RpR5djIoWBY=",
   "success": true,
-  "projectFilePath": "D:\\SW_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj",
+  "projectFilePath": "C:\\Users\\user\\Mind_Map_Project\\MindMap\\MindMapManager.Core\\MindMapManager.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\user\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\user\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
