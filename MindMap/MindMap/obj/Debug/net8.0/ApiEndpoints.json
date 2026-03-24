@@ -1,0 +1,102 @@
+[
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "GenerateNewJwtToken",
+    "RelativePath": "api/v{version}/Account/generate-new-jwt-token",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tokenDTO",
+        "Type": "MindMapManager.Core.DTOs.TokenDTO",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "IsEmailIsEmailAlreadyRegistered",
+    "RelativePath": "api/v{version}/Account/is-email-already-registered",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "PostLogin",
+    "RelativePath": "api/v{version}/Account/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginDTO",
+        "Type": "MindMapManager.Core.DTOs.LoginDTO",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "GetLogout",
+    "RelativePath": "api/v{version}/Account/logout",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "PostRegister",
+    "RelativePath": "api/v{version}/Account/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "registerDTO",
+        "Type": "MindMapManager.Core.DTOs.RegisterDTO",
+        "IsRequired": true
+      },
+      {
+        "Name": "version",
+        "Type": "",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
