@@ -22,14 +22,13 @@ namespace MindMapManager.WebAPI.Controllers
         private readonly IEmailService _emailService;
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IJwtService jwtService,IConfiguration configuration,IEmailService emailService,RoleManager<ApplicationRole> roleManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IJwtService jwtService,IConfiguration configuration,IEmailService emailService)
         {
            _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _config = configuration;
             _emailService = emailService;
-            _roleManager = roleManager;
         }
 
         [HttpPost("register")]
@@ -55,6 +54,8 @@ namespace MindMapManager.WebAPI.Controllers
             }
              
             await _signInManager.SignInAsync(appuser, isPersistent: false);
+
+            await _userManager.AddToRoleAsync(appuser, "Member");
 
             // create token
             var authRespnse = await _jwtService.CreateJwtTokenAsync(appuser);
