@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MindMapManager.Core.Entities;
-using System;
-using System.Collections.Generic;
 
 namespace MindMapManager.Infrastructure.DatabaseContext;
 
@@ -67,9 +65,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
 
     public virtual DbSet<VwUserProgress> VwUserProgresses { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=mind_road;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,8 +72,38 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
         modelBuilder.Entity<IdentityUserLogin<int>>()
        .HasKey(e => new { e.LoginProvider, e.ProviderKey });
 
-        modelBuilder.Entity<IdentityUserRole<int>>()
-            .HasKey(e => new { e.UserId, e.RoleId });
+        modelBuilder.Entity<ApplicationRole>(entity =>
+        {
+            entity.HasData(
+                new ApplicationRole()
+                {
+                    Id = 1,
+                    Name = "Member",
+                    NormalizedName = "MEMBER"
+                },
+                new ApplicationRole()
+                {
+                    Id = 2,
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                });
+        });
+
+        modelBuilder.Entity<IdentityUserRole<int>>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.RoleId });
+            entity.HasData(new IdentityUserRole<int>()
+            {
+                UserId = 3,
+                RoleId = 1
+            },
+                new IdentityUserRole<int>()
+                {
+                    UserId = 4,
+                    RoleId = 2
+                });
+        });
+            
 
         modelBuilder.Entity<IdentityUserToken<int>>()
             .HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
@@ -109,12 +134,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
                 .HasColumnName("otp_expire");
            
             entity.Property(e => e.Pid).HasColumnName("pid");
-            entity.Property(e => e.ResetPass)
-                .HasMaxLength(50)
-                .HasColumnName("reset_pass");
-            entity.Property(e => e.ResetPassExpires)
-                .HasColumnType("datetime")
-                .HasColumnName("reset_pass_expires");
            
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
@@ -809,6 +828,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
                 .HasMaxLength(100)
                 .HasColumnName("username");
         });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -14,10 +14,6 @@ public partial class ApplicationUser : IdentityUser<int>
 
     public DateTime? LastActDate { get; set; }
 
-    public string? ResetPass { get; set; }
-
-    public DateTime? ResetPassExpires { get; set; }
-
     public DateTime CreatedAt { get; set; }
 
     public int? Pid { get; set; }
