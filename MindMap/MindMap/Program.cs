@@ -12,6 +12,8 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Asp.Versioning;
 using MindMapManager.Core.Configuration;
+using MindMapManager.Core.RepositoryContracts;
+using MindMapManager.Infrastructure.Repository;
 
 
 
@@ -26,14 +28,16 @@ namespace MindMapManager.WebAPI
             builder.Services.AddControllers(options =>
             {
                 // Authorization policy (apply authrize global filter)
-                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
+                //var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                //options.Filters.Add(new AuthorizeFilter(policy));
             });
 
             // Register services
             builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddTransient<IJwtService, JwtService>();
+            builder.Services.AddScoped<ITrackRepository, TrackRepository>();
+            builder.Services.AddScoped<ITrackService, TrackService>();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services

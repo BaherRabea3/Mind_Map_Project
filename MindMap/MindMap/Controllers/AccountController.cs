@@ -20,7 +20,6 @@ namespace MindMapManager.WebAPI.Controllers
         private readonly IJwtService _jwtService;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
-        private readonly RoleManager<ApplicationRole> _roleManager;
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IJwtService jwtService,IConfiguration configuration,IEmailService emailService)
         {
@@ -40,6 +39,7 @@ namespace MindMapManager.WebAPI.Controllers
                     string.Join(" | ",ModelState.Values
                     .SelectMany(v=> v.Errors)
                     .Select(error => error.ErrorMessage));
+                return BadRequest(ErrorMassege);
             }
             ApplicationUser appuser = new ApplicationUser();
             appuser.Email = registerDTO.Email;
@@ -50,7 +50,7 @@ namespace MindMapManager.WebAPI.Controllers
             if (!result.Succeeded)
             {
                 string errorMessage = string.Join(" | ", result.Errors.Select(error => error.Description));
-                return Problem(errorMessage);
+                return Problem(errorMessage,statusCode: StatusCodes.Status409Conflict);
             }
              
             await _signInManager.SignInAsync(appuser, isPersistent: false);
@@ -77,6 +77,7 @@ namespace MindMapManager.WebAPI.Controllers
                     string.Join(" | ", ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage));
+                return BadRequest(errorMassege);
             }
 
             ApplicationUser? appUser = await _userManager.FindByEmailAsync(loginDTO.Email);
@@ -98,7 +99,7 @@ namespace MindMapManager.WebAPI.Controllers
                     return Ok(authResponse);
                 }
             }
-            return Problem("Invalid Email or Password");
+            return Problem("Invalid Email or Password",statusCode: StatusCodes.Status400BadRequest);
            
         }
 
