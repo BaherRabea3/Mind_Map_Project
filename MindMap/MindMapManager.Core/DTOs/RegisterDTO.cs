@@ -6,6 +6,9 @@ namespace MindMapManager.Core.DTOs
     public class RegisterDTO
     {
         [Required(ErrorMessage = "Name can't be blank")]
+        [MinLength(3)]
+        [MaxLength(25)]
+        [RegularExpression(@"^[a-zA-Z0-9_.\\ -]+$")]
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email can't be blank")]

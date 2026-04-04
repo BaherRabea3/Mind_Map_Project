@@ -1,8 +1,24 @@
 [
   {
     "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "ForgotPassword",
+    "RelativePath": "api/Account/forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "forgotPasswordDTO",
+        "Type": "MindMapManager.Core.DTOs.ForgotPasswordDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
     "Method": "GenerateNewJwtToken",
-    "RelativePath": "api/v{version}/Account/generate-new-jwt-token",
+    "RelativePath": "api/Account/generate-new-jwt-token",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -11,11 +27,6 @@
         "Name": "tokenDTO",
         "Type": "MindMapManager.Core.DTOs.TokenDTO",
         "IsRequired": true
-      },
-      {
-        "Name": "version",
-        "Type": "",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -23,7 +34,7 @@
   {
     "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
     "Method": "IsEmailIsEmailAlreadyRegistered",
-    "RelativePath": "api/v{version}/Account/is-email-already-registered",
+    "RelativePath": "api/Account/is-email-already-registered",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -32,19 +43,14 @@
         "Name": "email",
         "Type": "System.String",
         "IsRequired": false
-      },
-      {
-        "Name": "version",
-        "Type": "",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
-    "Method": "PostLogin",
-    "RelativePath": "api/v{version}/Account/login",
+    "Method": "Login",
+    "RelativePath": "api/Account/login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -53,35 +59,24 @@
         "Name": "loginDTO",
         "Type": "MindMapManager.Core.DTOs.LoginDTO",
         "IsRequired": true
-      },
-      {
-        "Name": "version",
-        "Type": "",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
-    "Method": "GetLogout",
-    "RelativePath": "api/v{version}/Account/logout",
+    "Method": "Logout",
+    "RelativePath": "api/Account/logout",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "version",
-        "Type": "",
-        "IsRequired": true
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
     "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
-    "Method": "PostRegister",
-    "RelativePath": "api/v{version}/Account/register",
+    "Method": "Register",
+    "RelativePath": "api/Account/register",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -90,11 +85,117 @@
         "Name": "registerDTO",
         "Type": "MindMapManager.Core.DTOs.RegisterDTO",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.AccountController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Account/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "MindMapManager.Core.DTOs.ResetPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.TrackController",
+    "Method": "GetAllTracks",
+    "RelativePath": "api/Track",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
       },
       {
-        "Name": "version",
-        "Type": "",
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "searchTirm",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.TrackController",
+    "Method": "Delete",
+    "RelativePath": "api/Track/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.TrackController",
+    "Method": "Update",
+    "RelativePath": "api/Track/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "trackRequest",
+        "Type": "MindMapManager.Core.DTOs.TrackRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.TrackController",
+    "Method": "Add",
+    "RelativePath": "api/Track/add",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "TrackRequest",
+        "Type": "MindMapManager.Core.DTOs.TrackRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MindMapManager.WebAPI.Controllers.TrackController",
+    "Method": "FeaturedTracks",
+    "RelativePath": "api/Track/Featured-tracks",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "amount",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
