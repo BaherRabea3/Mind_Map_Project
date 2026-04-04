@@ -27,7 +27,7 @@ namespace MindMapManager.Core.Services
         public async Task<AuthenticationResponse> CreateJwtTokenAsync(ApplicationUser applicationUser)
         {
             DateTime expiration = DateTime.UtcNow
-                .AddMinutes(Convert.ToDouble(_config["Jwt:Expiration_Minutes"]));
+                .AddDays(Convert.ToDouble(_config["Jwt:Expiration_Days"]));
 
             // payload
             List<Claim> Claims = new List<Claim>()
