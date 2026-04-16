@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.ServiceContracts;
@@ -49,6 +48,25 @@ namespace MindMapManager.WebAPI.Controllers
             }
 
 
+        }
+
+        [HttpGet("{id:int}")]
+        public ActionResult GetTrackRoadmaps(
+            [FromRoute] int id ,
+            [FromQuery] int page = 1 ,
+            [FromQuery] int pageSize = 6)
+        {
+            try
+            {
+                var response = _trackService.GetRoadmapsByTrackId(id, page, pageSize);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("not found"))
+                    return NotFound("track not found");
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("add")]

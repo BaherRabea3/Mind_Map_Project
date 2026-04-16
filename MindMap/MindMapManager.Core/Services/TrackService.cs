@@ -13,10 +13,12 @@ namespace MindMapManager.Core.Services
     public class TrackService : ITrackService
     {
         private readonly ITrackRepository _trackRepo;
+        private readonly IRoadmapRepository _roadmapRepo;
 
-        public TrackService(ITrackRepository trackRepo,UserManager<ApplicationUser> userManager)
+        public TrackService(ITrackRepository trackRepo , IRoadmapRepository roadmapRepo)
         {
             _trackRepo = trackRepo;
+            _roadmapRepo = roadmapRepo;
         }
 
         public void AddTrack(TrackRequestDto trackDto)
@@ -143,6 +145,44 @@ namespace MindMapManager.Core.Services
             {
                 throw new Exception("Failed to update track");
             }
+        }
+
+        public PagedResult<RoadmapResponseDto> GetRoadmapsByTrackId(int trackId, int pageNo, int pageSize)
+        {
+            if (pageNo < 1 || pageSize < 1)
+                throw new Exception("invalid pageNo or page size");
+            try
+            {
+                var query = _roadmapRepo.FilterByTrackId(trackId);
+                var totalcount = query.Count();
+                var totalPages = (int)Math.Ceiling((decimal)totalcount / pageSize);
+
+                if (pageNo > totalPages)
+                    throw new Exception("invalid pageNo");
+
+                int skip = (pageNo - 1) * pageSize;
+
+                var response = query
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .Select(r => new RoadmapResponseDto()
+                    {
+                        RoadmapName = r.Name,
+                        RoadmapDescription = r.Description
+                    }).ToList();
+                return new PagedResult<RoadmapResponseDto>()
+                {
+                    Items = response,
+                    Page = pageNo,
+                    PageSize = pageSize,
+                    TotalCount = totalcount
+                };
+            }
+            catch
+            {
+                throw new ArgumentNullException("not found");
+            }
+            
         }
     }
 }
