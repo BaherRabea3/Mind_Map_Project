@@ -12,5 +12,6 @@ namespace MindMapManager.Core.ServiceContracts
         public void AddTrack(TrackRequestDto trackDto);
         public void DeleteTrack(int id);
         public void UpdateTrack(int id , TrackRequestDto trackDto);
+        public PagedResult<RoadmapResponseDto> GetRoadmapsByTrackId(int trackId, int pageNo, int pageSize);
     }
 }

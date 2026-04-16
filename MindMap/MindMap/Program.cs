@@ -38,6 +38,14 @@ namespace MindMapManager.WebAPI
             builder.Services.AddTransient<IJwtService, JwtService>();
             builder.Services.AddScoped<ITrackRepository, TrackRepository>();
             builder.Services.AddScoped<ITrackService, TrackService>();
+            builder.Services.AddScoped<IRoadmapRepository, RoadmapRepository>();
+            builder.Services.AddScoped<IRoadmapService,RoadmapService>();
+            builder.Services.AddScoped<ITopicRepository, TopicRepository>();
+            builder.Services.AddScoped<ITopicService,TopicService>();
+            builder.Services.AddScoped<ILevelService, LevelService>();
+            builder.Services.AddScoped<ILevelRepository,LevelRepository>();
+            builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
+            builder.Services.AddScoped<IResourceService, ResourceService>();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services
@@ -78,10 +86,10 @@ namespace MindMapManager.WebAPI
             });
 
             // Versioning
-            builder.Services.AddApiVersioning(config =>
-            {
-                config.ApiVersionReader = new UrlSegmentApiVersionReader();
-            });
+            //builder.Services.AddApiVersioning(config =>
+            //{
+            //    config.ApiVersionReader = new UrlSegmentApiVersionReader();
+            //});
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer(); // read all endpoints
