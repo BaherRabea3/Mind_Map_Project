@@ -53,6 +53,12 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+            builder.Services.AddScoped<ISearchService, SearchService>();
+            builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
+            builder.Services.AddScoped<IBookmarkService, BookmarkService>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services
