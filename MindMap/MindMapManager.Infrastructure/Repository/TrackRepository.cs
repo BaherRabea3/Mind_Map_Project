@@ -42,7 +42,6 @@ namespace MindMapManager.Infrastructure.Repository
         public Track? GetByIdIncludeUsersAndRoadMaps(int id)
         {
             return _context.Tracks
-                .Include(t => t.Users)
                 .Include(t => t.Roadmaps)
                 .FirstOrDefault(track => track.TrackId == id);
         }
@@ -52,6 +51,14 @@ namespace MindMapManager.Infrastructure.Repository
             return _context.Tracks
                 .Include(t => t.Roadmaps)
                 .AsQueryable();
+        }
+
+        public Track? GetWithRoadmapsAndLevels(int id)
+        {
+            return _context.Tracks
+                .Include(x => x.Roadmaps)
+                    .ThenInclude(x => x.Levels)
+                .FirstOrDefault(x => x.TrackId == id);
         }
 
         public void Remove(Track track)

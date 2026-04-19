@@ -78,6 +78,7 @@ namespace MindMapManager.Core.Services
 
             return new ResourceResponse()
                 {
+                    resourceId = resource.ResId,
                     resourceName = resource.Name,
                     resourceOrder = resource.Order,
                     resourceType = resource.Type,

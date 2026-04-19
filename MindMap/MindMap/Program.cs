@@ -46,13 +46,18 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<ILevelRepository,LevelRepository>();
             builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
             builder.Services.AddScoped<IResourceService, ResourceService>();
-            builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
-            builder.Services.AddScoped<IResourceService, ResourceService>();
+            builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+            builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+            builder.Services.AddScoped<IUserTrackRepository, UserTrackRepository>();
+            builder.Services.AddScoped<IProgressService, ProgressService>();
+            builder.Services.AddScoped<ICompletedTopicRepository, CompletedTopicRepository>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
+          
             builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             builder.Services.AddScoped<ICertificateService, CertificateService>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
-            builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+          
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
@@ -92,7 +97,7 @@ namespace MindMapManager.WebAPI
                 options.AddDefaultPolicy(builderPolicy =>
                 {
                     builderPolicy
-                    .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST", "PUT", "DELETE");
                 });
@@ -106,16 +111,39 @@ namespace MindMapManager.WebAPI
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer(); // read all endpoints
-            builder.Services.AddSwaggerGen(); // responsible of documetation for Api's endpoints
+            builder.Services.AddSwaggerGen(options =>
+            {
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "api.xml");
+                if (File.Exists(xmlPath))
+                {
+                    options.IncludeXmlComments(xmlPath);
+                }
+            }); // responsible of documetation for Api's endpoints
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "my api");
+                });
             }
+
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    context.Response.ContentType = "text/plain";
+                    var error = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+                    if (error != null)
+                    {
+                        await context.Response.WriteAsync(error.Error.ToString());
+                    }
+                });
+            });
 
             app.UseHttpsRedirection();
             app.UseRouting();

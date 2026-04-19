@@ -90,7 +90,7 @@ namespace MindMapManager.Core.Services
                     TrackName = t.Name,
                     TrackDescription = t.Description,
                     TrackIcon = t.IconUrl,
-                    EnrollmentsCount = t.Users.Count(),
+                    EnrollmentsCount = t.UserTracks.Count(),
                     RoadmapsCount = t.Roadmaps.Count()
                 }).ToList();
             return new PagedResult<TrackResponse>()
@@ -109,14 +109,15 @@ namespace MindMapManager.Core.Services
                 throw new Exception("Invalid Tracks number");
             }
             var Tracks = _trackRepo.Get()
-                .OrderByDescending(t => t.Users.Count())
+                .OrderByDescending(t => t.UserTracks.Count())
                 .Take(Tracksnumber)
                 .Select(t => new TrackResponse
                 {
+                    TrackId = t.TrackId,
                     TrackName = t.Name,
                     TrackDescription = t.Description,
                     TrackIcon = t.IconUrl,
-                    EnrollmentsCount = t.Users.Count(),
+                    EnrollmentsCount = t.UserTracks.Count(),
                     RoadmapsCount = t.Roadmaps.Count()
                 }).ToList();
 
@@ -167,6 +168,7 @@ namespace MindMapManager.Core.Services
                     .Take(pageSize)
                     .Select(r => new RoadmapResponseDto()
                     {
+                        RoadmapId = r.Rid,
                         RoadmapName = r.Name,
                         RoadmapDescription = r.Description
                     }).ToList();

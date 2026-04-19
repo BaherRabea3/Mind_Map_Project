@@ -49,6 +49,14 @@ namespace MindMapManager.Infrastructure.Repository
                 .FirstOrDefault(r => r.Rid == id);
         }
 
+        public Roadmap? GetByIdWithLevelsAndProgress(int id)
+        {
+            return _context.Roadmaps
+                 .Include(x => x.Levels)
+                    .ThenInclude(l => l.Progresses)
+                 .FirstOrDefault(x => x.Rid == id);
+        }
+
         public bool IsExist(Roadmap roadmap)
         {
             return _context.Roadmaps.Any(r => 

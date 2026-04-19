@@ -8,6 +8,7 @@ namespace MindMapManager.Core.DTOs
 {
     public class ResourceResponse
     {
+        public int resourceId {  get; set; }
         public string resourceName {  get; set; }
         public string? resourceType { get; set; }
         public int resourceOrder { get; set; }

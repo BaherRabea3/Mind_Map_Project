@@ -15,6 +15,7 @@ namespace MindMapManager.Core.RepositoryContracts
         public Track? GetByIdIncludeUsersAndRoadMaps(int id);
         public IQueryable<Track> Search(string? SearchTirm);
         public Track? FindByName(string name);
+        public Track? GetWithRoadmapsAndLevels(int id);
 
     }
 }

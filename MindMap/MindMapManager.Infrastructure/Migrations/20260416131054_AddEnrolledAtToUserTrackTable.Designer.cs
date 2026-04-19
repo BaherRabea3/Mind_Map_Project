@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MindMapManager.Infrastructure.DatabaseContext;
 
@@ -11,9 +12,11 @@ using MindMapManager.Infrastructure.DatabaseContext;
 namespace MindMapManager.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416131054_AddEnrolledAtToUserTrackTable")]
+    partial class AddEnrolledAtToUserTrackTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -372,31 +375,6 @@ namespace MindMapManager.Infrastructure.Migrations
                     b.HasIndex(new[] { "TopicId" }, "idx_comment_topic_id");
 
                     b.ToTable("comment", (string)null);
-                });
-
-            modelBuilder.Entity("MindMapManager.Core.Entities.CompletedTopic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("topicId")
-                        .HasColumnType("int")
-                        .HasColumnName("topic_id");
-
-                    b.Property<int>("userId")
-                        .HasColumnType("int")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("topicId");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("completed_topics", (string)null);
                 });
 
             modelBuilder.Entity("MindMapManager.Core.Entities.Level", b =>
@@ -1375,27 +1353,6 @@ namespace MindMapManager.Infrastructure.Migrations
                     b.Navigation("Topic");
                 });
 
-            modelBuilder.Entity("MindMapManager.Core.Entities.CompletedTopic", b =>
-                {
-                    b.HasOne("MindMapManager.Core.Entities.Topic", "Topic")
-                        .WithMany("CompletedTopics")
-                        .HasForeignKey("topicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("completed_user_topic_fk");
-
-                    b.HasOne("MindMapManager.Core.Entities.ApplicationUser", "User")
-                        .WithMany("CompletedTopics")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("completed_user_user_fk");
-
-                    b.Navigation("Topic");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MindMapManager.Core.Entities.Level", b =>
                 {
                     b.HasOne("MindMapManager.Core.Entities.Roadmap", "RidNavigation")
@@ -1567,8 +1524,6 @@ namespace MindMapManager.Infrastructure.Migrations
                 {
                     b.Navigation("Certificates");
 
-                    b.Navigation("CompletedTopics");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("Progresses");
@@ -1620,8 +1575,6 @@ namespace MindMapManager.Infrastructure.Migrations
             modelBuilder.Entity("MindMapManager.Core.Entities.Topic", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("CompletedTopics");
 
                     b.Navigation("Resources");
                 });

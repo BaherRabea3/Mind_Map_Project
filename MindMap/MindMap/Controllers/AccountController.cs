@@ -30,6 +30,11 @@ namespace MindMapManager.WebAPI.Controllers
             _emailService = emailService;
         }
 
+        /// <summary>
+        /// register
+        /// </summary>
+        /// <param name="registerDTO">register information</param>
+        /// <returns>return an access token and a refresh token</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
@@ -68,6 +73,11 @@ namespace MindMapManager.WebAPI.Controllers
             return Ok(authRespnse);
         }
 
+        /// <summary>
+        /// login
+        /// </summary>
+        /// <param name="loginDTO">login information</param>
+        /// <returns>return an Access token and a refresh token</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
@@ -94,7 +104,16 @@ namespace MindMapManager.WebAPI.Controllers
                     appUser.RefreshToken = authResponse.RefreshToken;
                     appUser.RefreshTokenExpiration = authResponse.RefreshTokenExpiration;
 
-                    await _userManager.UpdateAsync(appUser);
+                    if (DateTime.UtcNow.Day - appUser.LastActDate.Value.Day <= 1)
+                    {
+                        appUser.Streak++;
+                    }
+                    else
+                    {
+                        appUser.Streak = 1;
+                    }
+
+                        await _userManager.UpdateAsync(appUser);
 
                     return Ok(authResponse);
                 }
@@ -103,15 +122,29 @@ namespace MindMapManager.WebAPI.Controllers
            
         }
 
+        /// <summary>
+        /// logout
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("logout")]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
+            string email = User.FindFirstValue(ClaimTypes.Email).ToString();
+            var user = await _userManager.FindByEmailAsync(email);
+            user.LastActDate = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
             await _signInManager.SignOutAsync();
 
             return NoContent();
         }
 
+        /// <summary>
+        /// generate a new jwt access token
+        /// </summary>
+        /// <param name="tokenDTO">expired token and a refresh token</param>
+        /// <returns>return new jwt token</returns>
         [HttpPost("generate-new-jwt-token")]
         public async Task<IActionResult> GenerateNewJwtToken(TokenDTO tokenDTO)
         {
@@ -152,6 +185,11 @@ namespace MindMapManager.WebAPI.Controllers
             return Ok(authResponse);
         }
 
+        /// <summary>
+        /// forgot password
+        /// </summary>
+        /// <param name="forgotPasswordDTO">must enter a user email and the client base url</param>
+        /// <returns>reset password token and user email</returns>
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDTO forgotPasswordDTO)
         {
@@ -194,6 +232,11 @@ namespace MindMapManager.WebAPI.Controllers
             });
         }
 
+        /// <summary>
+        /// reset user password
+        /// </summary>
+        /// <param name="request">it has user email and reset token from forgot password endpoint</param>
+        /// <returns></returns>
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
         {
@@ -217,8 +260,13 @@ namespace MindMapManager.WebAPI.Controllers
 
         }
 
+        /// <summary>
+        /// check if email already registered or not
+        /// </summary>
+        /// <param name="email">email to check</param>
+        /// <returns>true if email doesn't register and false if email already register</returns>
         [HttpGet("is-email-already-registered")]
-        public async Task<IActionResult> IsEmailIsEmailAlreadyRegistered(string email)
+        public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
         {
             var RegisterEmail = await _userManager.FindByEmailAsync(email);
 

@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace MindMapManager.Core.RepositoryContracts
 {
-    public interface IProgressRepository
+    public interface IUserTrackRepository
     {
-        void Add(Progress progress);
-        void Update(Progress progress);
-        Progress? GetProgress(int userId, int levelId);
+        void add(UserTrack userTrack);
+        bool IsEnrolled(int userId, int? trackId);
+        IQueryable<UserTrack> GetAllUserTracks(int userId);
         void Save();
-        bool IsRoadmapCompleted(int userId, int roadmapId);
     }
 }

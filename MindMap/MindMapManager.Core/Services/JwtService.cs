@@ -35,6 +35,7 @@ namespace MindMapManager.Core.Services
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub,applicationUser.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat,DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),ClaimValueTypes.Integer64),
+                new Claim(ClaimTypes.NameIdentifier,applicationUser.Id.ToString()),
                 new Claim(ClaimTypes.Email,applicationUser.Email),
                 new Claim(ClaimTypes.Name, applicationUser.UserName)
             };
