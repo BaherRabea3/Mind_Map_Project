@@ -13,5 +13,6 @@ namespace MindMapManager.Core.RepositoryContracts
         void Update(Progress progress);
         Progress? GetProgress(int userId, int levelId);
         void Save();
+        bool IsRoadmapCompleted(int userId, int roadmapId);
     }
 }

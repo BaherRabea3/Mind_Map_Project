@@ -52,6 +52,18 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<IProgressService, ProgressService>();
             builder.Services.AddScoped<ICompletedTopicRepository, CompletedTopicRepository>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+          
+            builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
+            builder.Services.AddScoped<ICertificateService, CertificateService>();
+            builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+          
+            builder.Services.AddScoped<ISearchService, SearchService>();
+            builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
+            builder.Services.AddScoped<IBookmarkService, BookmarkService>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services

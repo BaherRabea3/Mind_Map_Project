@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace MindMapManager.Infrastructure.Repository
 {
@@ -28,7 +29,24 @@ namespace MindMapManager.Infrastructure.Repository
             return _context.Progresses
                 .FirstOrDefault(x => x.UserId == userId && x.Lid == levelId);
         }
+        public bool IsRoadmapCompleted(int userId, int roadmapId)
+        {
+            var totalLevels = _context.Levels
+                .Where(l => l.Rid == roadmapId)
+                .Count();
 
+            if (totalLevels == 0) return false;
+
+            var completedLevels = _context.Progresses
+                .Include(p => p.LidNavigation)
+                .Where(p => p.UserId == userId
+                    && p.LidNavigation != null
+                    && p.LidNavigation.Rid == roadmapId
+                    && p.CompPerc == 100)
+                .Count();
+
+            return completedLevels >= totalLevels;
+        }
         public void Update(Progress progress)
         {
             _context.Update(progress);
@@ -39,3 +57,4 @@ namespace MindMapManager.Infrastructure.Repository
         }
     }
 }
+
