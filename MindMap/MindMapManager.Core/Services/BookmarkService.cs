@@ -1,5 +1,6 @@
 ﻿
 using MindMapManager.Core.DTOs;
+using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -30,17 +31,26 @@ namespace MindMapManager.Core.Services
             _bookmarkRepo.Remove(userId, resourceId);
         }
 
-        public List<BookmarkResponse> GetMyBookmarks(int userId)
+        public PagedResult<BookmarkResponse> GetMyBookmarks(int userId, int page, int pageSize)
         {
-            var resources = _bookmarkRepo.GetUserBookmarks(userId);
-            return resources.Select(r => new BookmarkResponse
+            var query = _bookmarkRepo.GetUserBookmarks(userId)
+                .AsQueryable()
+                .Select(r => new BookmarkResponse
+                {
+                    ResId = r.ResId,
+                    Name = r.Name,
+                    Type = r.Type,
+                    ResUrl = r.ResUrl,
+                    Paid = r.Paid
+                });
+
+            return new PagedResult<BookmarkResponse>
             {
-                ResId = r.ResId,
-                Name = r.Name,
-                Type = r.Type,
-                ResUrl = r.ResUrl,
-                Paid = r.Paid
-            }).ToList();
+                Items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                TotalCount = query.Count(),
+                Page = page,
+                PageSize = pageSize
+            };
         }
     }
 }

@@ -14,6 +14,7 @@ using Asp.Versioning;
 using MindMapManager.Core.Configuration;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Infrastructure.Repository;
+using MindMapManager.WebAPI.Middlewares;
 
 
 
@@ -59,6 +60,10 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ISearchRepository, SearchRepository>();
+            builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
+            builder.Services.AddScoped<ICommunityService, CommunityService>();
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services
@@ -106,7 +111,35 @@ namespace MindMapManager.WebAPI
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer(); // read all endpoints
-            builder.Services.AddSwaggerGen(); // responsible of documetation for Api's endpoints
+
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter your JWT token here"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+            });
 
             var app = builder.Build();
 
@@ -117,6 +150,9 @@ namespace MindMapManager.WebAPI
                 app.UseSwaggerUI();
             }
 
+
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors();
@@ -125,7 +161,7 @@ namespace MindMapManager.WebAPI
 
 
             app.MapControllers();
-
+          
             app.Run();
         }
     }

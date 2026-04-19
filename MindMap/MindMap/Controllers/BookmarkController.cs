@@ -20,15 +20,17 @@ namespace MindMapManager.WebAPI.Controllers
         private int GetUserId() =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        
+
         [HttpGet]
-        public ActionResult GetMyBookmarks()
+        public ActionResult GetMyBookmarks(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10)
         {
-            var bookmarks = _bookmarkService.GetMyBookmarks(GetUserId());
+            var bookmarks = _bookmarkService.GetMyBookmarks(GetUserId(), page, pageSize);
             return Ok(bookmarks);
         }
 
-        
+
         [HttpPost("{resourceId:int}")]
         public ActionResult AddBookmark(int resourceId)
         {

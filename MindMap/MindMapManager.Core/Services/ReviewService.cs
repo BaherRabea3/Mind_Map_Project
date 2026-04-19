@@ -1,6 +1,7 @@
 ﻿
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -17,10 +18,22 @@ namespace MindMapManager.Core.Services
             _progressRepo = progressRepo;
         }
 
-        public List<ReviewResponse> GetRoadmapReviews(int roadmapId)
+        public PagedResult<ReviewResponse> GetRoadmapReviews(int roadmapId, int page, int pageSize)
         {
-            var reviews = _reviewRepo.GetByRoadmapId(roadmapId);
-            return reviews.Select(MapToResponse).ToList();
+            var query = _reviewRepo.GetByRoadmapId(roadmapId)
+                .AsQueryable();
+
+            return new PagedResult<ReviewResponse>
+            {
+                Items = query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(MapToResponse)
+                    .ToList(),
+                TotalCount = query.Count(),
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public void AddReview(int userId, int roadmapId, ReviewRequest request)
