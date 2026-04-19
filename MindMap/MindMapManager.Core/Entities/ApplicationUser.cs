@@ -42,5 +42,6 @@ public partial class ApplicationUser : IdentityUser<int>
 
     public virtual ICollection<Resource> ResNavigation { get; set; } = new List<Resource>();
 
-    public virtual ICollection<Track> Tracks { get; set; } = new List<Track>();
+    public virtual ICollection<UserTrack> UserTracks { get; set; } = new List<UserTrack>();
+    public virtual ICollection<CompletedTopic> CompletedTopics { get; set; } = new List<CompletedTopic>();
 }

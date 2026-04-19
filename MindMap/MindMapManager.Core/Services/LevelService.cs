@@ -72,17 +72,20 @@ namespace MindMapManager.Core.Services
 
             return new LevelResoponse()
             {
+                levelId = level.Lid,
                 levelName= level.Name,
                 topicResponses = level.Topics
                 .OrderBy(t => t.Order)
                 .Select(topic => new TopicResponse()
                 {
+                    topicId = topic.TopicId,
                     topicName = topic.Name,
                     topicOrder = topic.Order,
                     resources = topic.Resources
                 .OrderBy(r => r.Order)
                 .Select(r => new ResourceResponse()
                 {
+                    resourceId = r.ResId,
                     resourceName = r.Name,
                     resourceOrder = r.Order,
                     resourceType = r.Type,

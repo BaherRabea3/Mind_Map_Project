@@ -98,6 +98,7 @@ namespace MindMapManager.Core.Services
                 .Take(pageSize)
                 .Select(r => new RoadmapResponseDto()
                 {
+                    RoadmapId  = r.Rid,
                     RoadmapName = r.Name,
                     RoadmapDescription = r.Description
                 }).ToList();
@@ -119,6 +120,7 @@ namespace MindMapManager.Core.Services
            
 
             RoadmapDetailsResponse roadmapDetails = new RoadmapDetailsResponse();
+            roadmapDetails.roadmapId = query.Rid;
             roadmapDetails.roadmapName = query.Name;
             roadmapDetails.trackName = query.Track?.Name;
             roadmapDetails.roadmapDescription = query.Description;
@@ -126,15 +128,18 @@ namespace MindMapManager.Core.Services
                 query.Reviews.Any() ? query.Reviews.Average(r => r.Rate) : 0;
             roadmapDetails.levelResoponses = query.Levels.Select(l => new LevelResoponse()
             {
+                levelId = l.Lid,
                 levelName = l.Name,
                 topicResponses = l.Topics.OrderBy(t => t.Order)
                 .Select(t => new TopicResponse()
                 {
+                    topicId = t.TopicId,
                     topicName = t.Name,
                     topicOrder = t.Order,
                     resources = t.Resources.OrderBy(r => r.Order)
                     .Select(r => new ResourceResponse()
                     {
+                        resourceId = r.ResId,
                         resourceName = r.Name,
                         resourceOrder = r.Order,
                         resourceType = r.Type,

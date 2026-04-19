@@ -45,6 +45,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
 
     public virtual DbSet<UserProject> UserProjects { get; set; }
 
+    public DbSet<UserTrack> UserTracks { get; set; }
+
+    public DbSet<CompletedTopic> CompletedTopics { get; set; }
+
     public virtual DbSet<VwCommentThread> VwCommentThreads { get; set; }
 
     public virtual DbSet<VwLeaderboard> VwLeaderboards { get; set; }
@@ -190,26 +194,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
                         j.IndexerProperty<int>("ResId").HasColumnName("res_id");
                     });
 
-            entity.HasMany(d => d.Tracks).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserTrack",
-                    r => r.HasOne<Track>().WithMany()
-                        .HasForeignKey("TrackId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_tarck_track_fk"),
-                    l => l.HasOne<ApplicationUser>().WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("user_tarck_user_fk"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "TrackId").HasName("pk_user_track");
-                        j.ToTable("user_track");
-                        j.HasIndex(new[] { "TrackId" }, "idx_user_track_track_id");
-                        j.HasIndex(new[] { "UserId" }, "idx_user_track_user_id");
-                        j.IndexerProperty<int>("UserId").HasColumnName("user_id");
-                        j.IndexerProperty<int>("TrackId").HasColumnName("track_id");
-                    });
         });
 
         modelBuilder.Entity<Certificate>(entity =>
@@ -569,6 +553,51 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__user_proj__user___1BC821DD");
+        });
+
+        modelBuilder.Entity<UserTrack>(entity =>
+        {
+            entity.HasKey(x => new { x.userId, x.trackId });
+
+
+            entity.Property(e => e.userId).HasColumnName("user_id");
+            entity.Property(e => e.trackId).HasColumnName("track_id");
+            entity.Property(e => e.EnrolledAt).HasColumnName("enrolled_at");
+
+
+            entity.HasOne(e => e.User)
+                      .WithMany(u => u.UserTracks)
+                      .HasForeignKey(e => e.userId)
+                      .HasConstraintName("user_track_user_fk");
+
+            entity.HasOne(e => e.Track)
+                  .WithMany(t => t.UserTracks)
+                  .HasForeignKey(e => e.trackId)
+                  .HasConstraintName("user_track_track_fk");
+
+
+            entity.ToTable("user_track");
+        });
+
+        modelBuilder.Entity<CompletedTopic>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.userId).HasColumnName("user_id");
+            entity.Property(x => x.topicId).HasColumnName("topic_id");
+
+            entity.HasOne(x => x.User)
+            .WithMany(x => x.CompletedTopics)
+            .HasForeignKey(x => x.userId)
+            .HasConstraintName("completed_user_user_fk");
+
+            entity.HasOne(x => x.Topic)
+            .WithMany(x => x.CompletedTopics)
+            .HasForeignKey(x => x.topicId)
+            .HasConstraintName("completed_user_topic_fk");
+
+            entity.ToTable("completed_topics");
+
         });
 
         modelBuilder.Entity<VwCommentThread>(entity =>

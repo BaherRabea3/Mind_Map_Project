@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MindMapManager.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.Register(MindMapManager.Core.DTOs.RegisterDTO)">
+            <summary>
+            register
+            </summary>
+            <param name="registerDTO">register information</param>
+            <returns>return an access token and a refresh token</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.Login(MindMapManager.Core.DTOs.LoginDTO)">
+            <summary>
+            login
+            </summary>
+            <param name="loginDTO">login information</param>
+            <returns>return an Access token and a refresh token</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.Logout">
+            <summary>
+            logout
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.GenerateNewJwtToken(MindMapManager.Core.DTOs.TokenDTO)">
+            <summary>
+            generate a new jwt access token
+            </summary>
+            <param name="tokenDTO">expired token and a refresh token</param>
+            <returns>return new jwt token</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.ForgotPassword(MindMapManager.Core.DTOs.ForgotPasswordDTO)">
+            <summary>
+            forgot password
+            </summary>
+            <param name="forgotPasswordDTO">must enter a user email and the client base url</param>
+            <returns>reset password token and user email</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.ResetPassword(MindMapManager.Core.DTOs.ResetPasswordRequestDto)">
+            <summary>
+            reset user password
+            </summary>
+            <param name="request">it has user email and reset token from forgot password endpoint</param>
+            <returns></returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.AccountController.IsEmailAlreadyRegistered(System.String)">
+            <summary>
+            check if email already registered or not
+            </summary>
+            <param name="email">email to check</param>
+            <returns>true if email doesn't register and false if email already register</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.GetAllTracks(System.Int32,System.Int32,System.String)">
+            <summary>
+            get all tracks with pagination
+            </summary>
+            <param name="page">page number</param>
+            <param name="pageSize"> page size</param>
+            <param name="searchTirm"> search tirm </param>
+            <returns>list of tracks</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.FeaturedTracks(System.Int32)">
+            <summary>
+            get tracks with most enrollments
+            </summary>
+            <param name="amount">number of tracks you want</param>
+            <returns>list of tracks</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.GetTrackRoadmaps(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            get all roadmaps in a track
+            </summary>
+            <param name="id">track id</param>
+            <param name="page">page number</param>
+            <param name="pageSize">page size</param>
+            <returns>list of all roadmaps in a track</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.Enroll(System.Int32)">
+            <summary>
+            member enroll to the track
+            </summary>
+            <param name="trackId"> track id</param>
+            <returns>enroll info</returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.Add(MindMapManager.Core.DTOs.TrackRequestDto)">
+            <summary>
+            add new track
+            </summary>
+            <param name="TrackRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.Delete(System.Int32)">
+            <summary>
+            delete a track
+            </summary>
+            <param name="id">track id</param>
+            <returns></returns>
+        </member>
+        <member name="M:MindMapManager.WebAPI.Controllers.TrackController.Update(System.Int32,MindMapManager.Core.DTOs.TrackRequestDto)">
+            <summary>
+            update track
+            </summary>
+            <param name="id">track id</param>
+            <param name="trackRequest">updated track</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

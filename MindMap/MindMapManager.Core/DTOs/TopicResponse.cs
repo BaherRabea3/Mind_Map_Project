@@ -8,6 +8,7 @@ namespace MindMapManager.Core.DTOs
 {
     public class TopicResponse
     {
+        public int topicId {  get; set; }
         public string topicName {  get; set; }
         public int topicOrder { get; set; }
 

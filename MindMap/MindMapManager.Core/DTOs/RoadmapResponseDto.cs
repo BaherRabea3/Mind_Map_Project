@@ -9,7 +9,7 @@ namespace MindMapManager.Core.DTOs
 {
     public class RoadmapResponseDto
     {
-        
+        public int RoadmapId { get; set; }
         public string RoadmapName { get; set; }
        
         public string RoadmapDescription { get; set; }

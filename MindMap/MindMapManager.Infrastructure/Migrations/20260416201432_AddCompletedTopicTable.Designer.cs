@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MindMapManager.Infrastructure.DatabaseContext;
 
@@ -11,9 +12,11 @@ using MindMapManager.Infrastructure.DatabaseContext;
 namespace MindMapManager.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416201432_AddCompletedTopicTable")]
+    partial class AddCompletedTopicTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -376,25 +379,17 @@ namespace MindMapManager.Infrastructure.Migrations
 
             modelBuilder.Entity("MindMapManager.Core.Entities.CompletedTopic", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("userId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
                     b.Property<int>("topicId")
                         .HasColumnType("int")
                         .HasColumnName("topic_id");
 
-                    b.Property<int>("userId")
-                        .HasColumnType("int")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
+                    b.HasKey("userId", "topicId");
 
                     b.HasIndex("topicId");
-
-                    b.HasIndex("userId");
 
                     b.ToTable("completed_topics", (string)null);
                 });

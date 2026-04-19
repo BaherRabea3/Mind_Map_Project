@@ -8,6 +8,7 @@ namespace MindMapManager.Core.DTOs
 {
     public class RoadmapDetailsResponse
     {
+        public int roadmapId { get; set; }
         public string roadmapName {  get; set; }
         public string? trackName { get; set; }
         public string roadmapDescription { get; set; }

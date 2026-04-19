@@ -83,6 +83,7 @@ namespace MindMapManager.Core.Services
                 .OrderBy(r => r.Order)
                 .Select(r => new ResourceResponse()
                 {
+                    resourceId = r.ResId,
                     resourceName = r.Name,
                     resourceOrder = r.Order,
                     resourceType = r.Type,
