@@ -47,13 +47,18 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<ILevelRepository,LevelRepository>();
             builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
             builder.Services.AddScoped<IResourceService, ResourceService>();
-            builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
-            builder.Services.AddScoped<IResourceService, ResourceService>();
+            builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+            builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+            builder.Services.AddScoped<IUserTrackRepository, UserTrackRepository>();
+            builder.Services.AddScoped<IProgressService, ProgressService>();
+            builder.Services.AddScoped<ICompletedTopicRepository, CompletedTopicRepository>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
+          
             builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             builder.Services.AddScoped<ICertificateService, CertificateService>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
-            builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+          
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
@@ -97,7 +102,7 @@ namespace MindMapManager.WebAPI
                 options.AddDefaultPolicy(builderPolicy =>
                 {
                     builderPolicy
-                    .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
                     .WithMethods("GET", "POST", "PUT", "DELETE");
                 });
@@ -113,19 +118,27 @@ namespace MindMapManager.WebAPI
             builder.Services.AddEndpointsApiExplorer(); // read all endpoints
 
 
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Enter your JWT token here"
-                });
+    builder.Services.AddSwaggerGen(options =>
+{
+    // XML comments
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, "api.xml");
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 
-                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    // JWT Bearer authentication
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter your JWT token like this: Bearer {your token}"
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
     {
         {
             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -136,18 +149,21 @@ namespace MindMapManager.WebAPI
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
-            });
+});
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "my api");
+                });
             }
 
 

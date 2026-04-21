@@ -2,6 +2,7 @@
 using MindMapManager.Core.Entities;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Infrastructure.DatabaseContext;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,11 @@ namespace MindMapManager.Infrastructure.Repository
             _context.Topics.Add(topic);
         }
 
+        public int CountPerLevel(int levelId)
+        {
+            return _context.Topics.Count(x => x.Lid == levelId);
+        }
+
         public void Delete(Topic topic)
         {
             _context.Topics.Remove(topic);
@@ -39,6 +45,12 @@ namespace MindMapManager.Infrastructure.Repository
             return _context.Topics
                 .Include(t => t.Resources)
                 .FirstOrDefault(x => x.TopicId == id);
+        }
+
+        public Topic? GetWithLevel(int id)
+        {
+            return _context.Topics.Include(x => x.LidNavigation)
+                .FirstOrDefault(x => x.TopicId ==id);
         }
 
         public bool IsExist(Topic topic)

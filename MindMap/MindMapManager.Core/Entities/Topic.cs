@@ -18,4 +18,5 @@ public partial class Topic
     public virtual Level? LidNavigation { get; set; }
 
     public virtual ICollection<Resource> Resources { get; set; } = new List<Resource>();
+    public virtual ICollection<CompletedTopic> CompletedTopics { get; set; } = new List<CompletedTopic>();
 }

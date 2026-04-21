@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace MindMapManager.Core.DTOs
 {
-    public class LevelResoponse
+    public class LevelProgressResponse
     {
         public int levelId {  get; set; }
-        public string levelName { get; set; }
-        public IEnumerable<TopicResponse> topicResponses { get; set; }
+        public int progressPercentage { get; set; }
     }
 }

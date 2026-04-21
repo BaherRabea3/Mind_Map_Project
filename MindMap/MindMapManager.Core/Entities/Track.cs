@@ -15,5 +15,5 @@ public partial class Track
 
     public virtual ICollection<Roadmap> Roadmaps { get; set; } = new List<Roadmap>();
 
-    public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
+    public virtual ICollection<UserTrack> UserTracks { get; set; } = new List<UserTrack>();
 }
