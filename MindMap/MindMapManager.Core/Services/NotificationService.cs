@@ -1,6 +1,7 @@
 ﻿
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -15,10 +16,22 @@ namespace MindMapManager.Core.Services
             _notifRepo = notifRepo;
         }
 
-        public List<NotificationResponse> GetMyNotifications(int userId)
+        public PagedResult<NotificationResponse> GetMyNotifications(int userId, int page, int pageSize)
         {
-            return _notifRepo.GetUserNotifications(userId)
-                .Select(MapToResponse).ToList();
+            var query = _notifRepo.GetUserNotifications(userId)
+                .AsQueryable();
+
+            return new PagedResult<NotificationResponse>
+            {
+                Items = query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(MapToResponse)
+                    .ToList(),
+                TotalCount = query.Count(),
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public int GetUnreadCount(int userId)

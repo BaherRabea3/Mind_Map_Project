@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MindMapManager.Core.ServiceContracts;
 using System.Security.Claims;
+using MindMapManager.Core.Helpers;
 
 namespace MindMapManager.WebAPI.Controllers
 {
@@ -21,13 +22,14 @@ namespace MindMapManager.WebAPI.Controllers
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpGet]
-        public ActionResult GetMyNotifications()
+        public ActionResult GetMyNotifications(
+     [FromQuery] int page = 1,
+     [FromQuery] int pageSize = 10)
         {
-            var notifs = _notifService.GetMyNotifications(GetUserId());
+            var notifs = _notifService.GetMyNotifications(GetUserId(), page, pageSize);
             return Ok(notifs);
         }
 
-      
         [HttpGet("unread-count")]
         public ActionResult GetUnreadCount()
         {

@@ -25,13 +25,16 @@ namespace MindMapManager.WebAPI.Controllers
 
        
         [HttpGet("/api/roadmaps/{id:int}/reviews")]
-        public ActionResult GetRoadmapReviews(int id)
+        public ActionResult GetRoadmapReviews(
+            int id,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var reviews = _reviewService.GetRoadmapReviews(id);
+            var reviews = _reviewService.GetRoadmapReviews(id, page, pageSize);
             return Ok(reviews);
         }
 
-       
+
         [HttpPost("/api/roadmaps/{id:int}/reviews")]
         [Authorize]
         public ActionResult AddReview(int id, ReviewRequest request)
