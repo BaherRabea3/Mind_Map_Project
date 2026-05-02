@@ -1,5 +1,6 @@
 ﻿using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 using System;
@@ -25,29 +26,27 @@ namespace MindMapManager.Core.Services
         {
             var level = _levelRepo.GetById(topicRequest.levelId);
             if (level == null)
-                throw new Exception("level not found");
+                throw new NotFoundException("level not found");
+
+            var topicName = topicRequest.name?.Trim();
+            if (string.IsNullOrWhiteSpace(topicName))
+                throw new BadRequestException("Topic name is required");
+
+            bool isExisted = _topicRepo.IsExist(topicName, topicRequest.levelId, null);
+
+            if (isExisted)
+                throw new ConflictException("topic already existed");
 
             Topic topic = new Topic();
             topic.Name = topicRequest.name;
             topic.Order = topicRequest.Order;
             topic.Lid = topicRequest.levelId;
 
-            bool isExisted = _topicRepo.IsExist(topic);
-
-            if (isExisted)
-                throw new Exception("topic already existed");
-
+           
             _topicRepo.Add(topic);
+            _topicRepo.Save();
 
-            try
-            {
-                _topicRepo.Save();
-                return topic.TopicId;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            return topic.TopicId;
         }
 
         public void DeleteTopic(int id)
@@ -73,10 +72,11 @@ namespace MindMapManager.Core.Services
            var topic = _topicRepo.GetByIdWithResources(id);
 
             if (topic == null)
-                throw new Exception("not found");
+                throw new NotFoundException("topic not found");
 
             return new TopicResponse()
             {
+                topicId = topic.TopicId,
                 topicName = topic.Name,
                 topicOrder = topic.Order,
                 resources = topic.Resources
@@ -96,27 +96,27 @@ namespace MindMapManager.Core.Services
         public void UpdateTopic(int id, TopicRequest topicRequest)
         {
             var topic = _topicRepo.GetById(id);
-            if (topic == null) throw new Exception("not found");
+            if (topic == null) throw new NotFoundException("topic not found");
 
-            if (topic.Name == topicRequest.name && topic.Lid == topicRequest.levelId)
+            var newName = string.IsNullOrWhiteSpace(topicRequest.name)
+                ? topic.Name : topicRequest.name.Trim();
+
+            if (topic.Name == topicRequest.name 
+                && topic.Lid == topicRequest.levelId
+                && topic.Order == topicRequest.Order)
                 return;
+
+            bool isExisted = _topicRepo.IsExist(newName, topicRequest.levelId, null);
+
+            if (isExisted)
+                throw new ConflictException("topic already existed");
 
             topic.Name = topicRequest.name;
             topic.Order = topicRequest.Order;
             topic.Lid = topicRequest.levelId;
 
-            bool isExisted = _topicRepo.IsExist(topic);
-            if (isExisted) throw new Exception("already existed");
-
             _topicRepo.Update(topic);
-            try
-            {
-                _topicRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _topicRepo.Save();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace MindMapManager.Core.RepositoryContracts
         public Roadmap? GetByIdWithLevelsAndProgress(int id);
         public IQueryable<Roadmap> Search(string? searchTirm);
         public Roadmap? FindByName(string roadmapName);
-        public bool IsExist(Roadmap roadmap);
+        public bool Existed(string roadmapName , int trackId , int? execludId);
         public void Add(Roadmap roadmap);
         public void Remove(Roadmap roadmap);
         public void Save();

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
@@ -19,6 +20,8 @@ namespace MindMapManager.Core.Services
             _userManager = userManager;
         }
 
+        private async Task<ApplicationUser?> GetUserById(int id) =>
+            await _userManager.FindByIdAsync(id.ToString());
         public PagedResult<UserResponse> GetAllUsers(UserFilterRequest filter)
         {
             var result = _adminRepo.GetAllUsers(filter.Status, filter.Search, filter.Page, filter.PageSize);
@@ -31,42 +34,39 @@ namespace MindMapManager.Core.Services
             };
         }
 
-        public UserResponse GetUserById(int id)
+        public async Task<UserResponse> GetUserDetails(int id)
         {
-            var user = _adminRepo.GetUserById(id);
-            if (user == null) throw new Exception("not found");
+            var user = await GetUserById(id);
+            if (user == null) throw new NotFoundException("user not found");
             return MapToResponse(user);
         }
 
-        public void ChangeUserStatus(int id, string status)
+        public async Task ChangeUserStatus(int id, string status)
         {
-            var user = _adminRepo.GetUserById(id);
-            if (user == null) throw new Exception("not found");
+            var user = await GetUserById(id);
+            if (user == null) throw new NotFoundException("user not found");
 
             user.Status = status;
-            _adminRepo.UpdateUser(user);
-            try { _adminRepo.Save(); }
-            catch (Exception ex) { throw new Exception($"Failed : {ex.Message}"); }
+            
+            await _userManager.UpdateAsync(user);
         }
 
-        public void ChangeUserRole(int id, string role)
+        public async Task ChangeUserRole(int id, string role)
         {
-            var user = _adminRepo.GetUserById(id);
-            if (user == null) throw new Exception("not found");
+            var user = await GetUserById(id);
+            if (user == null) throw new NotFoundException("user not found");
 
-            var currentRoles = _userManager.GetRolesAsync(user).Result;
-            _userManager.RemoveFromRolesAsync(user, currentRoles).Wait();
-            _userManager.AddToRoleAsync(user, role).Wait();
+            var currentRoles = await _userManager.GetRolesAsync(user);
+           await  _userManager.RemoveFromRolesAsync(user, currentRoles);
+            await _userManager.AddToRoleAsync(user, role);
         }
 
-        public void DeleteUser(int id)
+        public async Task DeleteUser(int id)
         {
-            var user = _adminRepo.GetUserById(id);
-            if (user == null) throw new Exception("not found");
+            var user = await GetUserById(id);
+            if (user == null) throw new NotFoundException("user not found");
 
-            _adminRepo.DeleteUser(user);
-            try { _adminRepo.Save(); }
-            catch (Exception ex) { throw new Exception($"Failed : {ex.Message}"); }
+            await _userManager.DeleteAsync(user);
         }
 
         public DashboardResponse GetDashboard()

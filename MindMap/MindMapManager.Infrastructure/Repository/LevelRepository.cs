@@ -38,9 +38,9 @@ namespace MindMapManager.Infrastructure.Repository
 
         }
 
-        public bool IsExist(Level level)
+        public bool IsExist(string newName , int roadmapId , int levelId)
         {
-            return _context.Levels.Any(l => l.Name == level.Name && l.Rid == level.Rid);
+            return _context.Levels.Any(l => l.Name == newName && l.Rid == roadmapId && l.Lid != levelId);
         }
 
         public void Save()
@@ -51,45 +51,6 @@ namespace MindMapManager.Infrastructure.Repository
         public void Update(Level level)
         {
             _context.Update(level);
-        }
-    }
-    public class ResourceRepository : IResourceRepository
-    {
-        private readonly AppDbContext _context;
-
-        public ResourceRepository(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        public void Add(Resource resource)
-        {
-            _context.Add(resource);
-        }
-
-        public void Delete(Resource resource)
-        {
-            _context.Remove(resource);
-        }
-
-        public Resource? GetById(int id)
-        {
-            return _context.Resources.FirstOrDefault(x => x.ResId == id);
-        }
-
-        public bool IsExist(Resource resource)
-        {
-            return _context.Resources.Any(l => l.Name == resource.Name && l.ResUrl == resource.ResUrl);
-        }
-
-        public void Save()
-        {
-            _context.SaveChanges();
-        }
-
-        public void Update(Resource resource)
-        {
-            _context.Update(resource);
         }
     }
 }

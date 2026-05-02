@@ -212,6 +212,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
             entity.Property(e => e.CertUrl)
                 .HasMaxLength(200)
                 .HasColumnName("cert_url");
+            entity.Property(e => e.CertificateCode).HasColumnType("varchar()").HasMaxLength(32);
             entity.Property(e => e.IssuedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -251,10 +252,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
 
             entity.HasOne(d => d.ParentCom).WithMany(p => p.InverseParentCom)
                 .HasForeignKey(d => d.ParentComId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("reply_comment_fk");
 
             entity.HasOne(d => d.Topic).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.TopicId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("comment_topic_fk");
         });
 
@@ -519,11 +522,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser,Applicatio
 
             entity.HasOne(d => d.Com).WithOne(p => p.UserComment)
                 .HasForeignKey<UserComment>(d => d.ComId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("user_comment_com_fk");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserComments)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("user_comment_user_fk");
         });
 

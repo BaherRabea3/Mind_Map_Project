@@ -1,6 +1,7 @@
 ﻿
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
@@ -25,14 +26,18 @@ namespace MindMapManager.Core.Services
 
             if (track == null)
             {
-                throw new Exception("invalid track id");
+                throw new NotFoundException("invalid track id");
             }
 
-            var roadmaDB = _roadmapRepo.FindByName(roadmapDto.RoadmapName);
+            var roadmapName = roadmapDto.RoadmapName.Trim();
+            if (string.IsNullOrWhiteSpace(roadmapName))
+                throw new BadRequestException("Roadmap name is required");
 
-            if (roadmaDB != null)
+            var exists = _roadmapRepo.Existed(roadmapName, roadmapDto.trackId, null);
+
+            if (exists)
             {
-                throw new Exception("roadmap already existed");
+                throw new ConflictException("roadmap already existed");
             }
 
             var roadmap = new Roadmap();
@@ -41,21 +46,15 @@ namespace MindMapManager.Core.Services
             roadmap.Description = roadmapDto.RoadmapDescription;
 
             _roadmapRepo.Add(roadmap);
-            try
+            _roadmapRepo.Save();
+
+            return new RoadmapCreateResponse()
             {
-                _roadmapRepo.Save();
-               return new RoadmapCreateResponse()
-               {
-                   id = roadmap.Rid,
-                   description = roadmap.Description,
-                   name = roadmap.Name,
-                   trackName = track.Name,
-               };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("internal" + ex.Message);
-            }
+                id = roadmap.Rid,
+                description = roadmap.Description,
+                name = roadmap.Name,
+                trackName = track.Name,
+            };
 
         }
 
@@ -63,18 +62,10 @@ namespace MindMapManager.Core.Services
         {
             var roadmap = _roadmapRepo.GetById(id);
             if (roadmap == null)
-                throw new Exception("not found");
+                throw new NotFoundException("roadmap not found");
 
             _roadmapRepo.Remove(roadmap);
-
-            try
-            {
-                _roadmapRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"failed : {ex.Message}");
-            }
+            _roadmapRepo.Save();
         }
 
         public PagedResult<RoadmapResponseDto> GetAll(int pageNo, int pageSize, string? searchTirm)
@@ -116,16 +107,14 @@ namespace MindMapManager.Core.Services
             var query = _roadmapRepo.GetByIdWithDetails(id);
 
             if (query == null)
-                throw new Exception("not found");
+                throw new NotFoundException("roadmap not found");
            
-
             RoadmapDetailsResponse roadmapDetails = new RoadmapDetailsResponse();
             roadmapDetails.roadmapId = query.Rid;
             roadmapDetails.roadmapName = query.Name;
             roadmapDetails.trackName = query.Track?.Name;
             roadmapDetails.roadmapDescription = query.Description;
-            roadmapDetails.avarageRating = 
-                query.Reviews.Any() ? query.Reviews.Average(r => r.Rate) : 0;
+            roadmapDetails.avarageRating = query.Reviews.Any() ? query.Reviews.Average(r => r.Rate) : 0;
             roadmapDetails.levelResoponses = query.Levels.Select(l => new LevelResoponse()
             {
                 levelId = l.Lid,
@@ -158,32 +147,30 @@ namespace MindMapManager.Core.Services
             var roadmap = _roadmapRepo.GetById(id);
             if (roadmap == null)
             {
-                throw new Exception("not found");
+                throw new NotFoundException("roadmap not found");
             }
+            var newName = string.IsNullOrWhiteSpace(roadmapDto.RoadmapName) 
+                ? roadmap.Name : roadmapDto.RoadmapName.Trim();
+            var newDescription = string.IsNullOrWhiteSpace (roadmapDto.RoadmapDescription)
+                ? roadmap.Description : roadmapDto.RoadmapDescription.Trim();
 
-            if (roadmap.Name == roadmapDto.RoadmapName && roadmap.TrackId == roadmapDto.trackId)
+            if (roadmap.Name == newName 
+                && roadmap.Description == newDescription
+                && roadmap.TrackId == roadmapDto.trackId)
                 return;
+
+            var exists = _roadmapRepo.Existed(newName, roadmapDto.trackId, id);
+            if (exists)
+            {
+                throw new ConflictException("roadmap already existed");
+            }
 
             roadmap.Name = roadmapDto.RoadmapName;
             roadmap.Description = roadmapDto.RoadmapDescription;
             roadmap.TrackId = roadmapDto.trackId;
 
-            bool isExisted = _roadmapRepo.IsExist(roadmap);
-            if (isExisted)
-            {
-                throw new Exception("roadmap already existed");
-            }
-
             _roadmapRepo.Update(roadmap);
-
-            try
-            {
-                _roadmapRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _roadmapRepo.Save();
         }
     }
 }

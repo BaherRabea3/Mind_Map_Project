@@ -10,6 +10,6 @@ namespace MindMapManager.Core.RepositoryContracts
         public Level? GetByidWithDetails(int id);
         public void Delete(Level level);
         public void Save();
-        public bool IsExist(Level level);
+        public bool IsExist(string newName , int roadmapId , int levelId);
     }
 }

@@ -39,6 +39,13 @@ namespace MindMapManager.Infrastructure.Repository
         {
             return _context.Topics.FirstOrDefault(t => t.TopicId == id);
         }
+        public Topic? GetByIdWithLevelAndRoadmaps(int id)
+        {
+            return _context.Topics
+                .Include(t => t.LidNavigation)
+                    .ThenInclude(l => l.RidNavigation)
+                .FirstOrDefault(t => t.TopicId == id);
+        }
 
         public Topic? GetByIdWithResources(int id)
         {
@@ -53,10 +60,12 @@ namespace MindMapManager.Infrastructure.Repository
                 .FirstOrDefault(x => x.TopicId ==id);
         }
 
-        public bool IsExist(Topic topic)
+        public bool IsExist(string topicName , int levelId , int? execludeId)
         {
             return _context.Topics
-                .Any(t => t.Name == topic.Name && t.Lid == topic.Lid);
+                .Any(t => t.Name == topicName 
+                && t.Lid == levelId
+                && execludeId.HasValue || t.TopicId != execludeId);
         }
 
         public void Save()

@@ -9,7 +9,8 @@ namespace MindMapManager.Core.ServiceContracts
 {
     public interface IProgressService
     {
-        void CompleteTopic(int userId, int topicId);
-        RoadmapProgressResponse RoadmapProgress(int userId ,int roadmapId);
+        Task CompleteTopic(int userId, int topicId);
+        void UnCompleteTopic(int userId, int topicId);
+        Task<RoadmapProgressResponse> RoadmapProgress(int userId ,int roadmapId);
     }
 }

@@ -14,6 +14,8 @@ namespace MindMapManager.Core.RepositoryContracts
         string? GetLastTopicCompleted(int userId , int roadmapId);
         bool IsCompleted(int userId, int topicId);
         void Add(CompletedTopic completedTopic);
+        CompletedTopic? GetByUserAndTopic(int userId, int topicId);
+        void Delete(int userId , int topicId);
         void Save();
     }
 }

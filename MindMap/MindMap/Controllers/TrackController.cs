@@ -32,16 +32,8 @@ namespace MindMapManager.WebAPI.Controllers
             [FromQuery] int pageSize = 6,
             [FromQuery] string? searchTirm = null)
         {
-            try
-            {
-                var Response = _trackService.GetAll(page, pageSize, searchTirm);
-                return Ok(Response);
-            }
-            catch (Exception ex)
-            {
-                return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest);
-            }
-
+            var Response = _trackService.GetAll(page, pageSize, searchTirm);
+            return Ok(Response);
         }
 
         /// <summary>
@@ -52,17 +44,8 @@ namespace MindMapManager.WebAPI.Controllers
         [HttpGet("Featured-tracks")]
         public IActionResult FeaturedTracks([FromQuery] int amount = 4)
         {
-            try
-            {
-                var Response = _trackService.GetTracksWithMostEnrollments(amount);
-                return Ok(Response);
-            }
-            catch (Exception ex)
-            {
-                return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest);
-            }
-
-
+            var Response = _trackService.GetTracksWithMostEnrollments(amount);
+            return Ok(Response);
         }
 
         /// <summary>
@@ -74,21 +57,12 @@ namespace MindMapManager.WebAPI.Controllers
         /// <returns>list of all roadmaps in a track</returns>
         [HttpGet("{id:int}")]
         public ActionResult GetTrackRoadmaps(
-            [FromRoute] int id ,
-            [FromQuery] int page = 1 ,
+            [FromRoute] int id,
+            [FromQuery] int page = 1,
             [FromQuery] int pageSize = 6)
         {
-            try
-            {
-                var response = _trackService.GetRoadmapsByTrackId(id, page, pageSize);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound("track not found");
-                return BadRequest(ex.Message);
-            }
+            var response = _trackService.GetRoadmapsByTrackId(id, page, pageSize);
+            return Ok(response);
         }
 
         /// <summary>
@@ -101,23 +75,23 @@ namespace MindMapManager.WebAPI.Controllers
         public ActionResult Enroll([FromRoute] int trackId)
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            try
-            {
+            
                 var enrollmentResoponse = _enrollmentService.Enroll(trackId, userId);
-                return CreatedAtAction(nameof(Enroll)
-                    , "track"
-                    , new { trackId = enrollmentResoponse.trackId }
-                    , enrollmentResoponse);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound(ex.Message);
-
-                return Conflict(ex.Message);
-            }
+            return CreatedAtAction(nameof(Enroll)
+                , "track"
+                , new { trackId = enrollmentResoponse.trackId }
+                , enrollmentResoponse);
+            
         }
 
+        [HttpGet("{Id:int}/enrollment-status")]
+        public ActionResult EnrollmentStatus(int id)
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            bool IsEnrolled = _enrollmentService.IsEnrolled(id, userId);
+
+            return Ok(new {IsEnrolled});
+        }
         /// <summary>
         /// add new track
         /// </summary>
@@ -125,22 +99,11 @@ namespace MindMapManager.WebAPI.Controllers
         /// <returns></returns>
         [HttpPost("add")]
         [Authorize(Roles = "Admin")]
-        public ActionResult Add(TrackRequestDto TrackRequest)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Add([FromForm]TrackRequestDto TrackRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                var msg = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(error => error.ErrorMessage));
-                return Problem(msg, statusCode: StatusCodes.Status400BadRequest);
-            }
-            try
-            {
-                _trackService.AddTrack(TrackRequest);
-                return Created();
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
-            }
+             await _trackService.AddTrack(TrackRequest);
+             return Created();
         }
 
         /// <summary>
@@ -152,40 +115,23 @@ namespace MindMapManager.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
-            try
-            {
-                _trackService.DeleteTrack(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message == "not found")
-                    return NotFound();
-                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-            }
+            _trackService.DeleteTrack(id);
+            return NoContent();
         }
 
         /// <summary>
         /// update track
         /// </summary>
         /// <param name="id">track id</param>
-        /// <param name="trackRequest">updated track</param>
+        /// <param name="updateTrackDto">updated track</param>
         /// <returns></returns>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult Update(int id , TrackRequestDto trackRequest)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Update(int id , [FromForm] UpdateTrackRequestDto updateTrackDto)
         {
-            try
-            {
-                _trackService.UpdateTrack(id, trackRequest);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message == "not found")
-                    return NotFound();
-                return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-            }
+           await _trackService.UpdateTrack(id, updateTrackDto);
+           return NoContent();
         }
     }
 }

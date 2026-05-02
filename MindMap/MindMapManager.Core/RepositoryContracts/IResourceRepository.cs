@@ -9,6 +9,6 @@ namespace MindMapManager.Core.RepositoryContracts
         public Resource? GetById(int id);
         public void Delete(Resource level);
         public void Save();
-        public bool IsExist(Resource level);
+        public bool IsExist(string newName, string newUrl, int topicId, int? excludeId);
     }
 }

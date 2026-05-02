@@ -10,5 +10,6 @@ namespace MindMapManager.Core.ServiceContracts
     public interface IEnrollmentService
     {
         public enrollResponseDto Enroll(int trackId, int userId);
+        bool IsEnrolled(int trackId, int userId);
     }
 }

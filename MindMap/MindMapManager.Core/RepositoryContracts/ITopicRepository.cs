@@ -14,10 +14,10 @@ namespace MindMapManager.Core.RepositoryContracts
         public Topic? GetByIdWithResources(int id);
         public Topic? GetById(int id);
         public Topic? GetWithLevel(int id);
-
+        public Topic? GetByIdWithLevelAndRoadmaps(int id);
         public void Delete(Topic topic);
         public void Save();
-        public bool IsExist(Topic topic);
+        public bool IsExist(string topicName, int levelId, int? execludeId);
         public int CountPerLevel(int levelId);
     }
 }

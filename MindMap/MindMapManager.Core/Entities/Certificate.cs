@@ -8,6 +8,7 @@ public partial class Certificate
     public int CertId { get; set; }
 
     public string? CertUrl { get; set; }
+    public string CertificateCode { get; set; } = null!;
 
     public int? UserId { get; set; }
 

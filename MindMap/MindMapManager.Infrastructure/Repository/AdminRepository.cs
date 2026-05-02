@@ -38,24 +38,6 @@ namespace MindMapManager.Infrastructure.Repository
             };
         }
 
-        public ApplicationUser? GetUserById(int id)
-        {
-            return _context.Users
-                .Include(u => u.Tracks)
-                .Include(u => u.Certificates)
-                .FirstOrDefault(u => u.Id == id);
-        }
-
-        public void UpdateUser(ApplicationUser user)
-        {
-            _context.Update(user);
-        }
-
-        public void DeleteUser(ApplicationUser user)
-        {
-            _context.Remove(user);
-        }
-
         public void Save()
         {
             _context.SaveChanges();
@@ -73,7 +55,7 @@ namespace MindMapManager.Infrastructure.Repository
                 ActiveUsers = _context.Users.Count(u => u.LastActDate >= monthAgo),
                 TotalTracks = _context.Tracks.Count(),
                 TotalRoadmaps = _context.Roadmaps.Count(),
-                TotalEnrollments = _context.Users.SelectMany(u => u.Tracks).Count(),
+                TotalEnrollments = _context.Users.SelectMany(u => u.UserTracks).Count(),
                 TotalCertificates = _context.Certificates.Count(),
                 TotalComments = _context.Comments.Count(),
                 NewUsersThisWeek = _context.Users.Count(u => u.CreatedAt >= weekAgo),

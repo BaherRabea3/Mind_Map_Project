@@ -5,11 +5,26 @@ namespace MindMapManager.Core.DTOs
 {
     public class RegisterDTO
     {
-        [Required(ErrorMessage = "Name can't be blank")]
+
+        [Required(ErrorMessage = "Full name can't be blank")]
+        [MinLength(3)]
+        [MaxLength(50)]
+        [RegularExpression(
+               @"^[a-zA-Z\s'.-]+$",
+               ErrorMessage = "Full name may contain letters and spaces only"
+           )]
+        public string FullName { get; set; } = string.Empty;
+
+
+        [Required(ErrorMessage = "User name can't be blank")]
         [MinLength(3)]
         [MaxLength(25)]
-        [RegularExpression(@"^[a-zA-Z0-9_.\\ -]+$")]
-        public string Name { get; set; } = string.Empty;
+        [RegularExpression(
+            @"^[a-zA-Z0-9_.]+$",
+            ErrorMessage = "User name cannot contain spaces"
+        )]
+        public string UserName { get; set; } = string.Empty;
+
 
         [Required(ErrorMessage = "Email can't be blank")]
         [EmailAddress(ErrorMessage = "Email should be a proper email address")]

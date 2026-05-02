@@ -57,10 +57,12 @@ namespace MindMapManager.Infrastructure.Repository
                  .FirstOrDefault(x => x.Rid == id);
         }
 
-        public bool IsExist(Roadmap roadmap)
+        public bool Existed(string roadmapName, int trackId, int? execludId)
         {
             return _context.Roadmaps.Any(r => 
-            r.Name == roadmap.Name && r.TrackId == roadmap.TrackId);
+            r.Name == roadmapName 
+            && r.TrackId == trackId 
+            && !execludId.HasValue || r.Rid != execludId);
         }
 
         public void Remove(Roadmap roadmap)

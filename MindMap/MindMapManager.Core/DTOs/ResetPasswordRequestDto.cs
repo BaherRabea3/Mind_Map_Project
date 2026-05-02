@@ -19,7 +19,7 @@ namespace MindMapManager.Core.DTOs
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Password and confirm password must be match")]
+        [Compare("Password", ErrorMessage = "Password and confirm password must be match")]
         [Required]
         public string ConfirmationPassword { get; set; } = string.Empty;
     }

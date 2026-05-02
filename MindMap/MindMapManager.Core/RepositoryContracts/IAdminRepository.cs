@@ -6,9 +6,6 @@ namespace MindMapManager.Core.RepositoryContracts
     public interface IAdminRepository
     {
         public PagedResult<ApplicationUser> GetAllUsers(string? status, string? search, int page, int pageSize);
-        public ApplicationUser? GetUserById(int id);
-        public void UpdateUser(ApplicationUser user);
-        public void DeleteUser(ApplicationUser user);
         public void Save();
         public DashboardData GetDashboardData();
     }

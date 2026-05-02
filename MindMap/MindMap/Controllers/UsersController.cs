@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MindMapManager.Core.DTOs;
+using MindMapManager.Core.Entities;
 using MindMapManager.Core.ServiceContracts;
 using System.Security.Claims;
 
@@ -16,20 +18,27 @@ namespace MindMapManager.WebAPI.Controllers
             _usersService = usersService;
         }
 
+        private int GetUser() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        [HttpGet("profile")]
+        public async Task<ActionResult> GetProfile()
+        {
+            var response = await _usersService.GetUserDetails(GetUser());
+            return Ok(response);
+        }
+
+        [HttpPut("profile")]
+        public async Task<ActionResult> UpdateProfile(UpdateProfileRequest request)
+        {
+            await _usersService.UpdateProfile(GetUser(), request);
+            return NoContent();
+        }
+
         [HttpGet("progress")]
         public ActionResult GetProgress()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            try
-            {
-                var response = _usersService.GetUserProgress(userId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var response = _usersService.GetUserProgress(GetUser());
+            return Ok(response);
         }
     }
 }

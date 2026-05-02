@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.ServiceContracts;
+using System.Threading.Tasks;
 
 namespace MindMapManager.WebAPI.Controllers
 {
@@ -18,7 +19,7 @@ namespace MindMapManager.WebAPI.Controllers
         }
 
         
-        [HttpGet("/api/admin/users")]
+        [HttpGet("users")]
         public ActionResult GetAllUsers([FromQuery] UserFilterRequest filter)
         {
             var users = _adminService.GetAllUsers(filter);
@@ -26,75 +27,39 @@ namespace MindMapManager.WebAPI.Controllers
         }
 
        
-        [HttpGet("/api/admin/users/{id:int}")]
-        public ActionResult GetUserById(int id)
+        [HttpGet("users/{id:int}")]
+        public async Task<ActionResult> GetUserByIdAsync(int id)
         {
-            try
-            {
-                var user = _adminService.GetUserById(id);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found")) return NotFound();
-                return BadRequest(ex.Message);
-            }
+            var user = await _adminService.GetUserDetails(id);
+            return Ok(user);
         }
 
        
-        [HttpPut("/api/admin/users/{id:int}/status")]
-        public ActionResult ChangeStatus(int id, ChangeStatusRequest request)
+        [HttpPut("users/{id:int}/status")]
+        public async Task<ActionResult> ChangeStatus(int id, ChangeStatusRequest request)
         {
-            try
-            {
-                _adminService.ChangeUserStatus(id, request.Status);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found")) return NotFound();
-                if (ex.Message.Contains("Failed"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-                return BadRequest(ex.Message);
-            }
+           await _adminService.ChangeUserStatus(id, request.Status);
+           return NoContent();
         }
 
         
-        [HttpPut("/api/admin/users/{id:int}/role")]
-        public ActionResult ChangeRole(int id, ChangeRoleRequest request)
+        [HttpPut("users/{id:int}/role")]
+        public async Task<ActionResult> ChangeRole(int id, ChangeRoleRequest request)
         {
-            try
-            {
-                _adminService.ChangeUserRole(id, request.Role);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found")) return NotFound();
-                return BadRequest(ex.Message);
-            }
+            await _adminService.ChangeUserRole(id, request.Role);
+            return NoContent();
         }
 
       
-        [HttpDelete("/api/admin/users/{id:int}")]
-        public ActionResult DeleteUser(int id)
+        [HttpDelete("users/{id:int}")]
+        public async Task<ActionResult> DeleteUser(int id)
         {
-            try
-            {
-                _adminService.DeleteUser(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found")) return NotFound();
-                if (ex.Message.Contains("Failed"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-                return BadRequest(ex.Message);
-            }
+            await  _adminService.DeleteUser(id);
+             return NoContent();
         }
 
        
-        [HttpGet("/api/admin/dashboard")]
+        [HttpGet("dashboard")]
         public ActionResult GetDashboard()
         {
             var dashboard = _adminService.GetDashboard();

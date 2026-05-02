@@ -1,6 +1,7 @@
 ﻿
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
@@ -11,17 +12,18 @@ namespace MindMapManager.Core.Services
     {
         private readonly IReviewRepository _reviewRepo;
         private readonly IProgressRepository _progressRepo;
+        private readonly IRoadmapRepository _roadmapRepo;
 
-        public ReviewService(IReviewRepository reviewRepo, IProgressRepository progressRepo)
+        public ReviewService(IReviewRepository reviewRepo, IProgressRepository progressRepo, IRoadmapRepository roadmapRepo)
         {
             _reviewRepo = reviewRepo;
             _progressRepo = progressRepo;
+            _roadmapRepo = roadmapRepo;
         }
 
         public PagedResult<ReviewResponse> GetRoadmapReviews(int roadmapId, int page, int pageSize)
         {
-            var query = _reviewRepo.GetByRoadmapId(roadmapId)
-                .AsQueryable();
+            var query = _reviewRepo.GetByRoadmapId(roadmapId);
 
             return new PagedResult<ReviewResponse>
             {
@@ -39,15 +41,28 @@ namespace MindMapManager.Core.Services
         public void AddReview(int userId, int roadmapId, ReviewRequest request)
         {
             if (request.Rate < 1 || request.Rate > 5)
-                throw new Exception("rate must be between 1 and 5");
+                throw new BadRequestException("rate must be between 1 and 5");
+
+
+            var roadmap = _roadmapRepo.GetById(roadmapId);
+            if (roadmap == null)
+                throw new NotFoundException("Roadmap not found");
+
 
             bool isCompleted = _progressRepo.IsRoadmapCompleted(userId, roadmapId);
-            if (!isCompleted)
-                throw new Exception("you must complete the roadmap before reviewing");
 
-            var existing = _reviewRepo.GetByUserAndRoadmap(userId, roadmapId);
-            if (existing != null)
-                throw new Exception("already reviewed");
+            if (!isCompleted)
+                throw new ForbiddenException("you must complete the roadmap before reviewing");
+
+            var exists = _reviewRepo.GetByUserAndRoadmap(userId, roadmapId);
+            if (exists != null)
+                throw new ConflictException("already reviewed");
+
+
+            var content = request.Content?.Trim();
+            if (string.IsNullOrWhiteSpace(content))
+                throw new BadRequestException("Review content is required");
+
 
             var review = new Review
             {
@@ -59,34 +74,20 @@ namespace MindMapManager.Core.Services
             };
 
             _reviewRepo.Add(review);
-            try
-            {
-                _reviewRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _reviewRepo.Save();
         }
 
         public void DeleteReview(int reviewId, int userId, bool isAdmin)
         {
             var review = _reviewRepo.GetById(reviewId);
             if (review == null)
-                throw new Exception("not found");
+                throw new NotFoundException("review not found");
 
             if (!isAdmin && review.UserId != userId)
-                throw new Exception("forbidden");
+                throw new ForbiddenException("You are not allowed to delete this review");
 
             _reviewRepo.Delete(review);
-            try
-            {
-                _reviewRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _reviewRepo.Save();
         }
 
         private static ReviewResponse MapToResponse(Review review) => new()

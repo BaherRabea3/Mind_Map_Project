@@ -212,6 +212,10 @@ namespace MindMapManager.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool?>("IsVerified")
                         .HasColumnType("bit")
                         .HasColumnName("is_verified");
@@ -306,6 +310,11 @@ namespace MindMapManager.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)")
                         .HasColumnName("cert_url");
+
+                    b.Property<string>("CertificateCode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar()");
 
                     b.Property<DateTime?>("IssuedAt")
                         .ValueGeneratedOnAdd()
@@ -1363,11 +1372,13 @@ namespace MindMapManager.Infrastructure.Migrations
                     b.HasOne("MindMapManager.Core.Entities.Comment", "ParentCom")
                         .WithMany("InverseParentCom")
                         .HasForeignKey("ParentComId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("reply_comment_fk");
 
                     b.HasOne("MindMapManager.Core.Entities.Topic", "Topic")
                         .WithMany("Comments")
                         .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("comment_topic_fk");
 
                     b.Navigation("ParentCom");
@@ -1495,12 +1506,14 @@ namespace MindMapManager.Infrastructure.Migrations
                     b.HasOne("MindMapManager.Core.Entities.Comment", "Com")
                         .WithOne("UserComment")
                         .HasForeignKey("MindMapManager.Core.Entities.UserComment", "ComId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("user_comment_com_fk");
 
                     b.HasOne("MindMapManager.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserComments")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("user_comment_user_fk");
 
                     b.Navigation("Com");

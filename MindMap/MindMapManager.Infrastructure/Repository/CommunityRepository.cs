@@ -17,18 +17,23 @@ namespace MindMapManager.Infrastructure.Repository
 
         public List<Comment> GetTopicComments(int topicId)
         {
+
             return _context.Comments
-                .Include(c => c.InverseParentCom)
-                .Include(c => c.UserComment)
-                .Where(c => c.TopicId == topicId && c.ParentComId == null)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToList();
+                  .Where(c => c.TopicId == topicId && c.ParentComId == null)
+                  .Include(c => c.UserComment)                 
+                  .Include(c => c.InverseParentCom)            
+                      .ThenInclude(r => r.UserComment)         
+                  .OrderByDescending(c => c.CreatedAt)
+                  .ToList();
+
         }
 
         public Comment? GetById(int comId)
         {
             return _context.Comments
                 .Include(c => c.UserComment)
+                .Include(c => c.InverseParentCom)
+                    .ThenInclude(c => c.UserComment)
                 .FirstOrDefault(c => c.ComId == comId);
         }
 
@@ -49,28 +54,16 @@ namespace MindMapManager.Infrastructure.Repository
         {
             _context.Comments.Remove(comment);
         }
+        public void DeleteUserComment(UserComment userComment)
+        {
+            _context.UserComments.Remove(userComment);
+        }
 
         public void Save()
         {
             _context.SaveChanges();
         }
 
-        public bool IsUserEnrolledInTopic(int userId, int topicId)
-        {
-            var topic = _context.Topics
-                .Include(t => t.LidNavigation)
-                    .ThenInclude(l => l!.RidNavigation)
-                        .ThenInclude(r => r!.Track)
-                .FirstOrDefault(t => t.TopicId == topicId);
-
-            if (topic?.LidNavigation?.RidNavigation?.Track == null)
-                return false;
-
-            int trackId = topic.LidNavigation.RidNavigation.Track.TrackId;
-
-            return _context.Users
-                .Include(u => u.Tracks)
-                .Any(u => u.Id == userId && u.Tracks.Any(t => t.TrackId == trackId));
-        }
+       
     }
 }

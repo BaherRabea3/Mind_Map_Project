@@ -1,5 +1,6 @@
 ﻿using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -16,51 +17,43 @@ namespace MindMapManager.Core.Services
             _roadmapRepo = roadmapRepo;
         }
 
-        public int AddLevel(LevelRequest LevelRequest)
+        public int AddLevel(LevelRequest levelRequest)
         {
-            var roadmap = _roadmapRepo.GetById(LevelRequest.roadmapId);
+            var roadmap = _roadmapRepo.GetById(levelRequest.roadmapId);
             if (roadmap == null)
-                throw new Exception("roadmap not found");
+                throw new NotFoundException("roadmap not found");
 
-            Level level = new Level();
-            level.Name = LevelRequest.name;
-           
-           
 
-            bool isExisted = _levelRepo.IsExist(level);
+            var levelName = levelRequest.name?.Trim();
+
+            if (string.IsNullOrWhiteSpace(levelName))
+                throw new BadRequestException("Level name is required");
+
+
+            bool isExisted = _levelRepo.IsExist(levelRequest.name, levelRequest.roadmapId, 0);
 
             if (isExisted)
-                throw new Exception("level already existed");
+                throw new ConflictException("level already existed");
+
+            Level level = new Level();
+            level.Name = levelName;
+            level.Rid = levelRequest.roadmapId;
 
             _levelRepo.Add(level);
 
-            try
-            {
-                _levelRepo.Save();
-                return level.Lid;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _levelRepo.Save();
+            return level.Lid;
         }
 
         public void DeleteLevel(int id)
         {
-            var roadmap = _levelRepo.GetById(id);
-            if (roadmap == null)
-                throw new Exception("not found");
+            var level = _levelRepo.GetById(id);
+            if (level == null)
+                throw new NotFoundException("level not found");
 
-            _levelRepo.Delete(roadmap);
+            _levelRepo.Delete(level);
 
-            try
-            {
-                _levelRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"failed : {ex.Message}");
-            }
+            _levelRepo.Save();
         }
 
         public LevelResoponse GetWithDetails(int id)
@@ -68,7 +61,7 @@ namespace MindMapManager.Core.Services
             var level = _levelRepo.GetByidWithDetails(id);
 
             if (level == null)
-                throw new Exception("not found");
+                throw new NotFoundException("level not found");
 
             return new LevelResoponse()
             {
@@ -99,26 +92,27 @@ namespace MindMapManager.Core.Services
         public void UpdateLevel(int id, LevelRequest levelRequest)
         {
             var level = _levelRepo.GetById(id);
-            if (level == null) throw new Exception("not found");
+            if (level == null) throw new NotFoundException("level not found");
 
-            if (level.Name == levelRequest.name && level.Rid == levelRequest.roadmapId)
+            
+
+            var newLevelName = string.IsNullOrWhiteSpace(levelRequest.name) ? level.Name : levelRequest.name.Trim();
+           
+            var newRoadmapId = levelRequest.roadmapId;
+
+            if (level.Name == newLevelName && level.Rid == newRoadmapId)
                 return;
 
-            level.Name = levelRequest.name;
-            level.Rid = levelRequest.roadmapId;
+            bool isExisted = _levelRepo.IsExist(newLevelName,newRoadmapId,id);
 
-            bool isExisted = _levelRepo.IsExist(level);
-            if (isExisted) throw new Exception("already existed");
+            if (isExisted) throw new ConflictException("level already existed");
+
+            level.Name = newLevelName;
+            level.Rid = newRoadmapId;
 
             _levelRepo.Update(level);
-            try
-            {
-                _levelRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _levelRepo.Save();
+               
         }
     }
 }

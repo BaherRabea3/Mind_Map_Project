@@ -1,6 +1,11 @@
 ﻿
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
+using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -10,58 +15,83 @@ namespace MindMapManager.Core.Services
     {
         private readonly ICertificateRepository _certRepo;
         private readonly IProgressRepository _progressRepo;
+        private readonly INotificationRepository _notificationRepo;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IRoadmapRepository _roadmapRepo;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CertificateService(ICertificateRepository certRepo, IProgressRepository progressRepo)
+        public CertificateService(ICertificateRepository certRepo, IProgressRepository progressRepo, INotificationRepository notificationRepo, IWebHostEnvironment environment, UserManager<ApplicationUser> userManager, IRoadmapRepository roadmapRepo)
         {
             _certRepo = certRepo;
             _progressRepo = progressRepo;
+            _notificationRepo = notificationRepo;
+            _environment = environment;
+            _roadmapRepo = roadmapRepo;
+            _userManager = userManager;
         }
 
         public List<CertificateResponse> GetMyCertificates(int userId)
         {
-            var certs = _certRepo.GetByUserId(userId);
+            var certs = _certRepo.GetByUserIdWithRoadmaps(userId);
             return certs.Select(MapToResponse).ToList();
         }
 
         public CertificateResponse GetById(int certId, int userId)
         {
-            var cert = _certRepo.GetById(certId);
+            var cert = _certRepo.GetById(certId , userId);
+
             if (cert == null)
-                throw new Exception("not found");
+                throw new NotFoundException("certificate not found");
             if (cert.UserId != userId)
-                throw new Exception("forbidden");
+                throw new ForbiddenException("complete the roadmap first");
 
             return MapToResponse(cert);
         }
 
-        public CertificateResponse AutoIssue(int userId, int roadmapId)
+        public async Task AutoIssue(int userId, int roadmapId)
         {
-            var existing = _certRepo.GetByUserAndRoadmap(userId, roadmapId);
-            if (existing != null)
-                return MapToResponse(existing);
+            var exists = _certRepo.IsAlreadyExisted(userId, roadmapId);
 
-            bool isCompleted = _progressRepo.IsRoadmapCompleted(userId, roadmapId);
-            if (!isCompleted)
-                throw new Exception("roadmap not completed yet");
+            if (exists)
+                return;
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var roadmap = _roadmapRepo.GetById(roadmapId);
+
+            if (user == null || roadmap == null)
+                throw new BadRequestException("Invalid certificate data");
+
+            var code = Guid.NewGuid().ToString("N");
+            var fileName = $"{code}.pdf";
+            var DirectoryPath = Path.Combine(_environment.WebRootPath, "certificates");
+
+            if (!Directory.Exists(DirectoryPath))
+                Directory.CreateDirectory(DirectoryPath);
+
+            var fullPath = Path.Combine(DirectoryPath, fileName);
+
+            CertificatePdfGenerator.Generate(fullPath, user.FullName, roadmap.Name, DateTime.UtcNow, code);
 
             var cert = new Certificate
             {
                 UserId = userId,
                 Rid = roadmapId,
-                CertUrl = $"https://mindmap.io/certificates/{Guid.NewGuid()}",
-                IssuedAt = DateTime.UtcNow
+                CertUrl = $"certificates/{fileName}",
+                IssuedAt = DateTime.UtcNow,
+                CertificateCode = code
             };
 
             _certRepo.Add(cert);
-            try
+            _certRepo.Save();
+
+            _notificationRepo.Add(new Notification()
             {
-                _certRepo.Save();
-                return MapToResponse(cert);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+                Message = "🎉 Congratulations! You’ve earned a new certificate!",
+                CreatedAt = DateTime.UtcNow,
+                Read = false,
+                UserId = userId,
+            });
+            _notificationRepo.Save();
         }
 
         private static CertificateResponse MapToResponse(Certificate cert) => new()
@@ -69,7 +99,59 @@ namespace MindMapManager.Core.Services
             CertId = cert.CertId,
             CertUrl = cert.CertUrl ?? string.Empty,
             IssuedAt = cert.IssuedAt ?? DateTime.UtcNow,
-            RoadmapId = cert.Rid ?? 0
+            RoadmapName =cert.RidNavigation.Name
         };
+
+        public DownloadCertificateResponse DownloadCertificate(int certId, int userId)
+        {
+            var certificate = _certRepo.GetById(certId, userId);
+
+            if (certificate == null)
+                throw new NotFoundException("Certificate not found");
+
+            var FullPath = Path.Combine(
+                _environment.WebRootPath,
+                certificate.CertUrl.TrimStart('/'));
+
+            if (!File.Exists(FullPath))
+                throw new NotFoundException();
+
+            return new DownloadCertificateResponse()
+            {
+                fileName = Path.GetFileName(FullPath),
+                contentType = "application/pdf",
+                physicalPath = FullPath,
+            };
+        }
+
+        public CertificateVerificationResponse Verify(string code)
+        {
+
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return new CertificateVerificationResponse()
+                {
+                    IsValid = false
+                };
+            }
+
+            var certificate = _certRepo.GetByCodeWithUserAndRoadmap(code);
+
+            if (certificate == null)
+            {
+                return new CertificateVerificationResponse()
+                {
+                    IsValid = false
+                };
+            }
+
+            return new CertificateVerificationResponse()
+            {
+                IsValid = true,
+                UserName = certificate.User.UserName,
+                RoadmapName = certificate.RidNavigation.Name,
+                IssuedAt = certificate.IssuedAt ?? DateTime.UtcNow
+            };
+        }
     }
 }

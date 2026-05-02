@@ -1,4 +1,5 @@
-﻿using MindMapManager.Core.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using MindMapManager.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,12 +13,13 @@ namespace MindMapManager.Core.DTOs
     {
         [Required(ErrorMessage = "*")]
         [StringLength(maximumLength: 100 , MinimumLength = 2 , ErrorMessage = "Name length must be between 2 and 100")]
-        public string TrackName { get; set; }
+        public string TrackName { get; set; } = string.Empty;
         [Required(ErrorMessage = "*")]
         [MaxLength(500, ErrorMessage = "Description length must not exceed 500")]
-        public string TrackDescription { get; set; }
+        public string TrackDescription { get; set; } = string.Empty;
         [Required(ErrorMessage = "*")]
-        public string TrackImage {  get; set; }
+        public IFormFile? TrackImage { get; set; } = null!;
 
     }
+
 }

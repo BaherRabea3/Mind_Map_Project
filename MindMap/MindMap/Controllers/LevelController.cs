@@ -20,73 +20,29 @@ namespace MindMapManager.WebAPI.Controllers
         [HttpGet("{id:int}")]
         public ActionResult GetByid([FromRoute] int id)
         {
-            try
-            {
-                var levelResponse = _levelService.GetWithDetails(id);
-                return Ok(levelResponse);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var levelResponse = _levelService.GetWithDetails(id);
+            return Ok(levelResponse);
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public ActionResult Add(LevelRequest levelDto)
         {
-            try
-            {
-                int levelId = _levelService.AddLevel(levelDto);
-                return CreatedAtAction(nameof(GetByid), "Topic", new { id =  levelId}, new { id = levelId });
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                if (ex.Message.Contains("Failed"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-
-                return BadRequest(ex.Message);
-            }
+            int levelId = _levelService.AddLevel(levelDto);
+            return CreatedAtAction(nameof(GetByid), "Topic", new { id = levelId }, new { id = levelId });
         }
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public ActionResult Update(int id, LevelRequest levelDto)
         {
-            try
-            {
-                _levelService.UpdateLevel(id, levelDto);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                if (ex.Message.Contains("Failed"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-
-                return BadRequest(ex.Message);
-            }
+            _levelService.UpdateLevel(id, levelDto);
+            return NoContent();
         }
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
-            try
-            {
-                _levelService.DeleteLevel(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                if (ex.Message.Contains("Failed"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-
-                return BadRequest(ex.Message);
-            }
+            _levelService.DeleteLevel(id);
+            return NoContent();
         }
-
     }
 }

@@ -9,9 +9,9 @@ namespace MindMapManager.Core.ServiceContracts
     {
         public IEnumerable<TrackResponse> GetTracksWithMostEnrollments(int amount);
         public PagedResult<TrackResponse> GetAll(int page, int pageSize, string? SearchTirm);
-        public void AddTrack(TrackRequestDto trackDto);
+        public Task AddTrack(TrackRequestDto trackDto);
         public void DeleteTrack(int id);
-        public void UpdateTrack(int id , TrackRequestDto trackDto);
+        public Task UpdateTrack(int id , UpdateTrackRequestDto trackDto);
         public PagedResult<RoadmapResponseDto> GetRoadmapsByTrackId(int trackId, int pageNo, int pageSize);
     }
 }

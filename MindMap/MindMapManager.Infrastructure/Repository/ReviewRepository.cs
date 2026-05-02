@@ -19,11 +19,10 @@ namespace MindMapManager.Infrastructure.Repository
             return _context.Reviews.FirstOrDefault(r => r.RevId == id);
         }
 
-        public List<Review> GetByRoadmapId(int roadmapId)
+        public IQueryable<Review> GetByRoadmapId(int roadmapId)
         {
             return _context.Reviews
-                .Where(r => r.Rid == roadmapId)
-                .ToList();
+                .Where(r => r.Rid == roadmapId);
         }
 
         public Review? GetByUserAndRoadmap(int userId, int roadmapId)

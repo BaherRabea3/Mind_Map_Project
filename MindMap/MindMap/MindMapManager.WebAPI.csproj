@@ -29,4 +29,8 @@
     <ProjectReference Include="..\MindMapManager.Infrastructure\MindMapManager.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

@@ -11,4 +11,5 @@ namespace MindMapManager.Core.DTOs
         public string DisplayName { get; set; }
         public string Email { get; set; }
     }
+
 }

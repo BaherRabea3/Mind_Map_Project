@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
 using MindMapManager.Core.Entities;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Infrastructure.DatabaseContext;
@@ -14,14 +15,15 @@ namespace MindMapManager.Infrastructure.Repository
             _context = context;
         }
 
-        public Certificate? GetById(int id)
+        public Certificate? GetById(int id, int userId)
         {
-            return _context.Certificates.FirstOrDefault(c => c.CertId == id);
+            return _context.Certificates.FirstOrDefault(c => c.CertId == id && c.UserId == userId);
         }
 
-        public List<Certificate> GetByUserId(int userId)
+        public List<Certificate> GetByUserIdWithRoadmaps(int userId)
         {
             return _context.Certificates
+                .Include(c => c.RidNavigation)
                 .Where(c => c.UserId == userId)
                 .ToList();
         }
@@ -40,6 +42,19 @@ namespace MindMapManager.Infrastructure.Repository
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public bool IsAlreadyExisted(int userId, int roadmapId)
+        {
+            return _context.Certificates.Any(c => c.UserId == userId && c.Rid == roadmapId);
+        }
+
+        public Certificate? GetByCodeWithUserAndRoadmap(string code)
+        {
+            return _context.Certificates
+                            .Include(c => c.User)
+                            .Include(c => c.RidNavigation)
+                            .FirstOrDefault(c => c.CertificateCode == code);
         }
     }
 }

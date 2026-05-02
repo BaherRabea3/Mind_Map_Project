@@ -1,6 +1,7 @@
 ﻿
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
@@ -18,8 +19,7 @@ namespace MindMapManager.Core.Services
 
         public PagedResult<NotificationResponse> GetMyNotifications(int userId, int page, int pageSize)
         {
-            var query = _notifRepo.GetUserNotifications(userId)
-                .AsQueryable();
+            var query = _notifRepo.GetUserNotifications(userId);
 
             return new PagedResult<NotificationResponse>
             {
@@ -43,7 +43,7 @@ namespace MindMapManager.Core.Services
         {
             var notif = _notifRepo.GetById(notId);
             if (notif == null || notif.UserId != userId)
-                throw new Exception("not found");
+                throw new NotFoundException("not found");
 
             _notifRepo.MarkAsRead(notif);
             _notifRepo.Save();
@@ -52,22 +52,6 @@ namespace MindMapManager.Core.Services
         public void MarkAllAsRead(int userId)
         {
             _notifRepo.MarkAllAsRead(userId);
-            _notifRepo.Save();
-        }
-
-        public void CreateNotification(int userId, string message, string refType, int refId)
-        {
-            var notif = new Notification
-            {
-                UserId = userId,
-                Message = message,
-                RefType = refType,
-                RefId = refId,
-                Read = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _notifRepo.Add(notif);
             _notifRepo.Save();
         }
 

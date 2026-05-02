@@ -8,10 +8,10 @@ namespace MindMapManager.Core.ServiceContracts
     public interface IAdminService
     {
         public PagedResult<UserResponse> GetAllUsers(UserFilterRequest filter);
-        public UserResponse GetUserById(int id);
-        public void ChangeUserStatus(int id, string status);
-        public void ChangeUserRole(int id, string role);
-        public void DeleteUser(int id);
+        public Task<UserResponse> GetUserDetails(int id);
+        public Task ChangeUserStatus(int id, string status);
+        public Task ChangeUserRole(int id, string role);
+        public Task DeleteUser(int id);
         public DashboardResponse GetDashboard();
     }
 }

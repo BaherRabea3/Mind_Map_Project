@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -27,14 +28,14 @@ namespace MindMapManager.Core.Services
 
             if (track == null)
             {
-                throw new Exception("track is not found");
+                throw new NotFoundException("track is not found");
             }
 
             var isEnrolled = _userTrackRepo.IsEnrolled(userId, trackId);
 
             if (isEnrolled)
             {
-                throw new Exception("user already enrolled");
+                throw new ConflictException("user already enrolled");
             }
 
             UserTrack userTrack = new UserTrack();
@@ -56,14 +57,7 @@ namespace MindMapManager.Core.Services
                     });
                 }
             }
-            try
-            {
-                _userTrackRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _userTrackRepo.Save();
 
             return new enrollResponseDto()
             {
@@ -72,6 +66,11 @@ namespace MindMapManager.Core.Services
                 EnrolledAt = DateTime.Now,
                 enrolledMessage = $"successfully enrolled in {track.Name}"
             };
+        }
+
+        public bool IsEnrolled(int trackId, int userId)
+        {
+            return _userTrackRepo.IsEnrolled(userId, trackId);
         }
     }
 }

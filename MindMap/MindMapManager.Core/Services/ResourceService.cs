@@ -1,5 +1,6 @@
 ﻿using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
 
@@ -22,51 +23,44 @@ namespace MindMapManager.Core.Services
 
             if (topic == null)
             {
-                throw new Exception("topic not found");
+                throw new NotFoundException("topic not found");
             }
+            var resourceName = resourceRequest.resourceName.Trim();
+            if (string.IsNullOrWhiteSpace(resourceName))
+                throw new BadRequestException("resouce name is required");
+
+            var resourceUrl = resourceRequest.rsourceUrl.Trim();
+            if (string.IsNullOrWhiteSpace(resourceUrl))
+                throw new BadRequestException("resouce url is required");
+
+            bool exists = _resourceRepo
+                .IsExist(resourceName, resourceUrl,resourceRequest.topicId, null);
+
+            if (exists)
+                throw new ConflictException("resource already existed");
 
             Resource resource = new Resource();
-            resource.Name = resourceRequest.resourceName;
+            resource.Name = resourceName;
             resource.Order = resourceRequest.resourceOrder;
             resource.Paid = resourceRequest.IsPaid;
-            resource.ResUrl = resourceRequest.rsourceUrl;
+            resource.ResUrl = resourceUrl;
             resource.TopicId = resourceRequest.topicId;
-
-
-            bool isExisted = _resourceRepo.IsExist(resource);
-
-            if (isExisted)
-                throw new Exception("resource already existed");
 
             _resourceRepo.Add(resource);
 
-            try
-            {
-                _resourceRepo.Save();
-                return resource.ResId;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _resourceRepo.Save();
+            return resource.ResId;
         }
 
         public void DeleteResource(int id)
         {
             var resource = _resourceRepo.GetById(id);
             if (resource == null)
-                throw new Exception("not found");
+                throw new NotFoundException("resource not found");
 
             _resourceRepo.Delete(resource);
 
-            try
-            {
-                _resourceRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"failed : {ex.Message}");
-            }
+            _resourceRepo.Save();
         }
 
         public ResourceResponse GetWithDetails(int id)
@@ -74,7 +68,7 @@ namespace MindMapManager.Core.Services
             var resource = _resourceRepo.GetById(id);
 
             if (resource == null)
-                throw new Exception("not found");
+                throw new NotFoundException("resource not found");
 
             return new ResourceResponse()
                 {
@@ -90,29 +84,40 @@ namespace MindMapManager.Core.Services
         public void UpdateResource(int id, ResourceRequest resourceRequest)
         {
             var resource = _resourceRepo.GetById(id);
-            if (resource == null) throw new Exception("not found");
+            if (resource == null) throw new NotFoundException("resource not found");
 
-            if (resource.Name == resourceRequest.resourceName && resource.ResUrl == resourceRequest.rsourceUrl)
+            var newName = string.IsNullOrWhiteSpace(resourceRequest.resourceName)
+                ? resource.Name : resourceRequest.resourceName.Trim();
+
+            var newUrl = resourceRequest.rsourceUrl.Trim();
+            if (string.IsNullOrWhiteSpace(newUrl))
+                throw new BadRequestException("resource url is required");
+
+
+            if (resource.Name == newName &&
+                   resource.ResUrl == newUrl &&
+                   resource.TopicId == resourceRequest.topicId &&
+                   resource.Order == resourceRequest.resourceOrder &&
+                   resource.Type == resourceRequest.resourceType &&
+                   resource.Paid == resourceRequest.IsPaid)
+            {
                 return;
+            }
 
-            resource.Name = resourceRequest.resourceName;
+
+            bool exists = _resourceRepo.IsExist(newName, newUrl,resourceRequest.topicId, id);
+            if (exists) throw new ConflictException("resource already existed");
+
+
+            resource.Name = newName;
             resource.Order = resourceRequest.resourceOrder;
             resource.Type = resourceRequest.resourceType;
             resource.Paid = resourceRequest.IsPaid;
-            resource.ResUrl = resourceRequest.rsourceUrl;
+            resource.ResUrl = newUrl;
 
-            bool isExisted = _resourceRepo.IsExist(resource);
-            if (isExisted) throw new Exception("already existed");
 
             _resourceRepo.Update(resource);
-            try
-            {
-                _resourceRepo.Save();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed : {ex.Message}");
-            }
+            _resourceRepo.Save();
         }
     }
 }

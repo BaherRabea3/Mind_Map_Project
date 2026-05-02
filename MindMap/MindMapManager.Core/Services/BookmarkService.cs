@@ -1,5 +1,6 @@
 ﻿
 using MindMapManager.Core.DTOs;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.Helpers;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
@@ -18,7 +19,7 @@ namespace MindMapManager.Core.Services
         public void AddBookmark(int userId, int resourceId)
         {
             if (_bookmarkRepo.IsBookmarked(userId, resourceId))
-                throw new Exception("already bookmarked");
+                return;
 
             _bookmarkRepo.Add(userId, resourceId);
         }
@@ -26,7 +27,7 @@ namespace MindMapManager.Core.Services
         public void RemoveBookmark(int userId, int resourceId)
         {
             if (!_bookmarkRepo.IsBookmarked(userId, resourceId))
-                throw new Exception("not found");
+                return;
 
             _bookmarkRepo.Remove(userId, resourceId);
         }

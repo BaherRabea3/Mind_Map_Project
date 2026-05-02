@@ -5,7 +5,7 @@ namespace MindMapManager.Core.RepositoryContracts
 {
     public interface INotificationRepository
     {
-        public List<Notification> GetUserNotifications(int userId);
+        public IQueryable<Notification> GetUserNotifications(int userId);
         public int GetUnreadCount(int userId);
         public Notification? GetById(int id);
         public void MarkAsRead(Notification notification);

@@ -7,6 +7,8 @@ namespace MindMapManager.Core.ServiceContracts
     {
         public List<CertificateResponse> GetMyCertificates(int userId);
         public CertificateResponse GetById(int certId, int userId);
-        public CertificateResponse AutoIssue(int userId, int roadmapId);
+        public Task AutoIssue(int userId, int roadmapId);
+        public DownloadCertificateResponse DownloadCertificate(int certId, int userId);
+        public CertificateVerificationResponse Verify(string code);
     }
 }

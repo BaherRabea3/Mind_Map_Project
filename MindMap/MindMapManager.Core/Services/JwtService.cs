@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Cryptography;
+using MindMapManager.Core.Exceptions;
 
 
 namespace MindMapManager.Core.Services
@@ -87,15 +88,16 @@ namespace MindMapManager.Core.Services
 
             };
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            var Claims =  handler.ValidateToken(jwtToken, TokenValidationParameters, out SecurityToken securityToken);
+            var Claims = handler.ValidateToken(jwtToken, TokenValidationParameters, out SecurityToken securityToken);
 
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,StringComparison.InvariantCultureIgnoreCase))
+            !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new SecurityTokenException("Invalid Token");
+                throw new BadRequestException("Invalid Token", new SecurityTokenException());
             }
 
             return Claims;
+            
         }
 
         private string CreateRefreshToken()

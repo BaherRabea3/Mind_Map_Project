@@ -22,9 +22,7 @@ namespace MindMapManager.WebAPI.Controllers
 
 
         [HttpGet]
-        public ActionResult GetMyBookmarks(
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 10)
+        public ActionResult GetMyBookmarks( [FromQuery] int page = 1,[FromQuery] int pageSize = 10)
         {
             var bookmarks = _bookmarkService.GetMyBookmarks(GetUserId(), page, pageSize);
             return Ok(bookmarks);
@@ -34,32 +32,16 @@ namespace MindMapManager.WebAPI.Controllers
         [HttpPost("{resourceId:int}")]
         public ActionResult AddBookmark(int resourceId)
         {
-            try
-            {
-                _bookmarkService.AddBookmark(GetUserId(), resourceId);
-                return StatusCode(StatusCodes.Status201Created);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _bookmarkService.AddBookmark(GetUserId(), resourceId);
+             return StatusCode(StatusCodes.Status201Created);
         }
 
        
         [HttpDelete("{resourceId:int}")]
         public ActionResult RemoveBookmark(int resourceId)
         {
-            try
-            {
-                _bookmarkService.RemoveBookmark(GetUserId(), resourceId);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                return BadRequest(ex.Message);
-            }
+            _bookmarkService.RemoveBookmark(GetUserId(), resourceId);
+            return NoContent();
         }
     }
 }

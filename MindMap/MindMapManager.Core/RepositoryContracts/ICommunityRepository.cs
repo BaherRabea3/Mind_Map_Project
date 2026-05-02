@@ -9,7 +9,7 @@ namespace MindMapManager.Core.RepositoryContracts
         public Comment? GetById(int comId);
         public void Add(Comment comment, int userId);
         public void Delete(Comment comment);
+        void DeleteUserComment(UserComment userComment);
         public void Save();
-        public bool IsUserEnrolledInTopic(int userId, int topicId);
     }
 }

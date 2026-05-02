@@ -20,36 +20,28 @@ namespace MindMapManager.WebAPI.Controllers
         public ActionResult GetRoadmapProgress([FromRoute] int roadmapId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            try
-            {
-                var progressResponse = _progressService.RoadmapProgress(userId, roadmapId);
-                return Ok(progressResponse);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                return BadRequest(ex.Message);
-            }
+            var progressResponse = _progressService.RoadmapProgress(userId, roadmapId);
+            return Ok(progressResponse);
         }
 
         [Authorize(Roles = "Member")]
         [HttpPost("complete-topic/{topicId:int}")]
-        public ActionResult CompleteTopic([FromRoute] int topicId)
+        public async Task<ActionResult> CompleteTopic([FromRoute] int topicId)
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            try
-            {
-                _progressService.CompleteTopic(userId, topicId);
-                return Created();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound(ex.Message);
-                return BadRequest(ex.Message);
-            }
+            
+            await _progressService.CompleteTopic(userId, topicId);
+            return Created();
+        }
+
+        [Authorize(Roles = "Member")]
+        [HttpDelete("complete-topic/{topicId:int}")]
+        public async Task<ActionResult> UnCompleteTopic([FromRoute] int topicId)
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            _progressService.UnCompleteTopic(userId, topicId);
+            return NoContent();
         }
     }
 }

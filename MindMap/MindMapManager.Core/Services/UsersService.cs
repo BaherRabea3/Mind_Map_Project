@@ -1,8 +1,10 @@
-﻿using MindMapManager.Core.DTOs;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.VisualBasic;
+using MindMapManager.Core.DTOs;
 using MindMapManager.Core.Entities;
+using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Core.ServiceContracts;
-
 
 namespace MindMapManager.Core.Services
 {
@@ -10,18 +12,44 @@ namespace MindMapManager.Core.Services
     {
         private readonly IUserTrackRepository _userTrackRepo;
         private readonly ICompletedTopicRepository _completedTopicRepo;
-        public UsersService(IUserTrackRepository userTrackRepo, ICompletedTopicRepository completedTopicRepo)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UsersService(IUserTrackRepository userTrackRepo, ICompletedTopicRepository completedTopicRepo, UserManager<ApplicationUser> userManager)
         {
             _userTrackRepo = userTrackRepo;
             _completedTopicRepo = completedTopicRepo;
+           _userManager = userManager;
+        }
+
+        public async Task<UserProfileResponse> GetUserDetails(int userId)
+        {
+           var user = await  _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                throw new NotFoundException("user not found");
+            }
+           var response = new UserProfileResponse()
+           {
+               Id = userId,
+               UserName = user.UserName,
+               FullName = user.FullName,
+               Email = user.Email,
+               status = user.Status,
+               Streak = user.Streak!.Value,
+               IsVerified = user.IsVerified ?? false
+           };
+            return response;
         }
 
         public IEnumerable<TrackProgressResponse> GetUserProgress(int userid)
         {
             var userTracks = _userTrackRepo.GetAllUserTracks(userid);
 
+            if(!userTracks.Any())
+                return Enumerable.Empty<TrackProgressResponse>();
 
-            var rawData = _userTrackRepo.GetAllUserTracks(userid)
+            var rawData = userTracks
                 .Select(ut => new
                 {
                     TrackId = ut.trackId,
@@ -41,7 +69,6 @@ namespace MindMapManager.Core.Services
                     })
                 })
                 .ToList();
-
 
             var result = rawData.Select(t => new TrackProgressResponse
             {
@@ -74,5 +101,30 @@ namespace MindMapManager.Core.Services
             return result;
         }
 
+        public async Task UpdateProfile(int userId , UpdateProfileRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                throw new NotFoundException("user not found");
+            }
+
+            var fullName = string.IsNullOrWhiteSpace(request.FullName)
+                ? user.FullName : request.FullName.Trim();
+
+            if (user.FullName.Trim() == fullName)
+                return;
+
+            user.FullName = fullName;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var msg = string.Join(", ", result.Errors.Select(error => error.Description));
+                throw new BadRequestException(msg);
+            }
+        }
     }
 }

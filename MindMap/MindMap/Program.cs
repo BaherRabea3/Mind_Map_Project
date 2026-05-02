@@ -53,12 +53,10 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<IProgressService, ProgressService>();
             builder.Services.AddScoped<ICompletedTopicRepository, CompletedTopicRepository>();
             builder.Services.AddScoped<IUsersService, UsersService>();
-          
             builder.Services.AddScoped<ICertificateRepository, CertificateRepository>();
             builder.Services.AddScoped<ICertificateService, CertificateService>();
             builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
-          
             builder.Services.AddScoped<ISearchService, SearchService>();
             builder.Services.AddScoped<IBookmarkRepository, BookmarkRepository>();
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
@@ -69,10 +67,16 @@ namespace MindMapManager.WebAPI
             builder.Services.AddScoped<ICommunityService, CommunityService>();
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IFileService,FileService>();
+
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // Add Identity Services
-            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+            builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+            })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -117,42 +121,41 @@ namespace MindMapManager.WebAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer(); // read all endpoints
 
-
-    builder.Services.AddSwaggerGen(options =>
-{
-    // XML comments
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, "api.xml");
-    if (File.Exists(xmlPath))
-    {
-        options.IncludeXmlComments(xmlPath);
-    }
-
-    // JWT Bearer authentication
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Enter your JWT token like this: Bearer {your token}"
-    });
-
-    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            builder.Services.AddSwaggerGen(options =>
             {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                // XML comments
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "api.xml");
+                if (File.Exists(xmlPath))
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    options.IncludeXmlComments(xmlPath);
                 }
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+            
+                // JWT Bearer authentication
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Enter your JWT token like this: Bearer {your token}"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             var app = builder.Build();
 
@@ -167,8 +170,8 @@ namespace MindMapManager.WebAPI
             }
 
 
-            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
-
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors();

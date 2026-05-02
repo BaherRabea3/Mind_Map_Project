@@ -41,17 +41,8 @@ namespace MindMapManager.WebAPI.Controllers
         [HttpPut("{id:int}/read")]
         public ActionResult MarkAsRead(int id)
         {
-            try
-            {
-                _notifService.MarkAsRead(id, GetUserId());
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                return BadRequest(ex.Message);
-            }
+            _notifService.MarkAsRead(id, GetUserId());
+            return NoContent();
         }
 
       

@@ -6,7 +6,7 @@ namespace MindMapManager.Core.RepositoryContracts
     public interface IReviewRepository
     {
         public Review? GetById(int id);
-        public List<Review> GetByRoadmapId(int roadmapId);
+        public IQueryable<Review> GetByRoadmapId(int roadmapId);
         public Review? GetByUserAndRoadmap(int userId, int roadmapId);
         public void Add(Review review);
         public void Delete(Review review);

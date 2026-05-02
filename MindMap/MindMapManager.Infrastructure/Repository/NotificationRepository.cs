@@ -14,13 +14,12 @@ namespace MindMapManager.Infrastructure.Repository
             _context = context;
         }
 
-        public List<Notification> GetUserNotifications(int userId)
+        public IQueryable<Notification> GetUserNotifications(int userId)
         {
             return _context.Notifications
                 .Where(n => n.UserId == userId)
                 .OrderBy(n => n.Read)
-                .ThenByDescending(n => n.CreatedAt)
-                .ToList();
+                .ThenByDescending(n => n.CreatedAt);
         }
 
         public int GetUnreadCount(int userId)

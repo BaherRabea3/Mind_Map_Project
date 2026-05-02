@@ -36,81 +36,33 @@ namespace MindMapManager.WebAPI.Controllers
             [FromQuery] int pageSize = 6,
             [FromQuery] string? searchTirm = null)
         {
-            if (!ModelState.IsValid)
-            {
-                string msg = string.Join(" | ",
-                    ModelState.Values.SelectMany(v => v.Errors)
-                    .Select(error => error.ErrorMessage));
-                return BadRequest(msg);
-            }
-            try
-            {
-                var response = _roadmapService.GetAll(page, pageSize, searchTirm);
+            var response = _roadmapService.GetAll(page, pageSize, searchTirm);
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
-            }
+            return Ok(response);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public ActionResult Add(RoadmapRequestDto roadmapDto)
         {
-            try
-            {
-                var roadmapResponse = _roadmapService.AddRoadmap(roadmapDto);
-                return CreatedAtAction("GetRoadmapById", "roadmap", new { id = roadmapResponse.id }, roadmapResponse);
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("internal"))
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-
-                return BadRequest(ex.Message);
-            }
+            var roadmapResponse = _roadmapService.AddRoadmap(roadmapDto);
+            return CreatedAtAction("GetRoadmapById", "roadmap", new { id = roadmapResponse.id }, roadmapResponse);
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = ("Admin"))]
         public ActionResult RemoveRoadmap(int id)
         {
-            try
-            {
-                _roadmapService.DeleteRoadmap(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("Failed"))
-                {
-                    return Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
-                }
-                    
-                return NotFound();
-            }
+            _roadmapService.DeleteRoadmap(id);
+            return NoContent();
         }
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public ActionResult Update(int id, RoadmapRequestDto roadmapRequest)
         {
-            try
-            {
-                _roadmapService.UpdateRoadmap(id, roadmapRequest);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message.Contains("not found"))
-                    return NotFound();
-                if(ex.Message.Contains("Failed"))
-                    return Problem(ex.Message , statusCode: StatusCodes.Status500InternalServerError);
-
-                return BadRequest(ex.Message);
-            }
+            _roadmapService.UpdateRoadmap(id, roadmapRequest);
+            return NoContent();
         }
     }
 }

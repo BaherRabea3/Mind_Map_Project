@@ -48,7 +48,8 @@ namespace MindMapManager.WebAPI.Controllers
             }
             ApplicationUser appuser = new ApplicationUser();
             appuser.Email = registerDTO.Email;
-            appuser.UserName = registerDTO.Name;
+            appuser.UserName = registerDTO.UserName;
+            appuser.FullName = registerDTO.FullName;
 
             IdentityResult result = await _userManager.CreateAsync(appuser,registerDTO.Password);
 
@@ -67,6 +68,8 @@ namespace MindMapManager.WebAPI.Controllers
 
             appuser.RefreshToken = authRespnse.RefreshToken;
             appuser.RefreshTokenExpiration = authRespnse.RefreshTokenExpiration;
+
+            appuser.CreatedAt = DateTime.UtcNow;
 
             await _userManager.UpdateAsync(appuser);
             
@@ -92,7 +95,7 @@ namespace MindMapManager.WebAPI.Controllers
 
             ApplicationUser? appUser = await _userManager.FindByEmailAsync(loginDTO.Email);
 
-            if (User != null)
+            if (appUser != null)
             {
                 bool IsValidPassword = await _userManager.CheckPasswordAsync(appUser, loginDTO.Password);
                 if (IsValidPassword)
@@ -104,15 +107,22 @@ namespace MindMapManager.WebAPI.Controllers
                     appUser.RefreshToken = authResponse.RefreshToken;
                     appUser.RefreshTokenExpiration = authResponse.RefreshTokenExpiration;
 
-                    if (DateTime.UtcNow.Day - appUser.LastActDate.Value.Day <= 1)
-                    {
-                        appUser.Streak++;
-                    }
-                    else
+                    var today = DateTime.UtcNow.Date;
+                    if (!appUser.LastActDate.HasValue)
                     {
                         appUser.Streak = 1;
                     }
+                    else
+                    {
+                        var lastActive = appUser.LastActDate.Value.Date;
+                        var daysDiff = (today - lastActive).Days;
+                        if (daysDiff == 1)
+                            appUser.Streak += 1;
+                        else if (daysDiff > 1)
+                            appUser.Streak = 1;
+                    }
 
+                    appUser.LastActDate = today;
                         await _userManager.UpdateAsync(appUser);
 
                     return Ok(authResponse);
@@ -130,10 +140,15 @@ namespace MindMapManager.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            string email = User.FindFirstValue(ClaimTypes.Email).ToString();
-            var user = await _userManager.FindByEmailAsync(email);
-            user.LastActDate = DateTime.UtcNow;
-            await _userManager.UpdateAsync(user);
+            string? email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized();
+
+            ApplicationUser user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+                return Unauthorized();
 
             await _signInManager.SignOutAsync();
 
@@ -151,38 +166,38 @@ namespace MindMapManager.WebAPI.Controllers
             if (tokenDTO == null)
                 return BadRequest("invalid client token");
 
-            var principal = _jwtService.GetPrincipaleFromJwtToken(tokenDTO.Token);
+                var principal = _jwtService.GetPrincipaleFromJwtToken(tokenDTO.Token);
+                if (principal == null)
+                {
+                    return BadRequest("Invalid jwt access token");
+                }
 
-            if (principal == null)
-            {
-                return BadRequest("Invalid jwt access token");
-            }
+                string? email = principal.FindFirstValue(ClaimTypes.Email);
 
-            string? email = principal.FindFirstValue(ClaimTypes.Email);
+                var user = await _userManager.FindByEmailAsync(email);
 
-            var user = await _userManager.FindByEmailAsync(email);
+                if (user == null ||
+                    tokenDTO.RefreshToken != user.RefreshToken ||
+                    user.RefreshTokenExpiration < DateTime.UtcNow)
+                {
+                    return BadRequest("Invalid refresh token");
+                }
 
-            if (user == null || 
-                tokenDTO.RefreshToken != user.RefreshToken || 
-                user.RefreshTokenExpiration < DateTime.UtcNow)
-            {
-                return BadRequest("Invalid refresh token");
-            }
+                var authResponse = await _jwtService.CreateJwtTokenAsync(user);
 
-            var authResponse = await _jwtService.CreateJwtTokenAsync(user);
+                user.RefreshToken = authResponse.RefreshToken;
+                user.RefreshTokenExpiration = authResponse.RefreshTokenExpiration;
 
-            user.RefreshToken = authResponse.RefreshToken;
-            user.RefreshTokenExpiration = authResponse.RefreshTokenExpiration;
+                var result = await _userManager.UpdateAsync(user);
 
-            var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    string errorMsg = string.Join(" | ", result.Errors.Select(error => error.Description));
+                    return Problem(errorMsg,statusCode: StatusCodes.Status500InternalServerError);
+                }
 
-            if (!result.Succeeded)
-            {
-                string errorMsg = string.Join(" | ", result.Errors.Select(error => error.Description));
-                return Problem(errorMsg);
-            }
-
-            return Ok(authResponse);
+                return Ok(authResponse);
+           
         }
 
         /// <summary>
