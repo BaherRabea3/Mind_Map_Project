@@ -17,10 +17,10 @@ namespace MindMapManager.WebAPI.Controllers
 
         [Authorize(Roles = "Member")]
         [HttpGet("roadmap/{roadmapId:int}")]
-        public ActionResult GetRoadmapProgress([FromRoute] int roadmapId)
+        public async Task<ActionResult> GetRoadmapProgress([FromRoute] int roadmapId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var progressResponse = _progressService.RoadmapProgress(userId, roadmapId);
+            var progressResponse = await _progressService.RoadmapProgress(userId, roadmapId);
             return Ok(progressResponse);
         }
 

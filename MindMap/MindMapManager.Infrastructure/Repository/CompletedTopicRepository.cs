@@ -1,4 +1,5 @@
-﻿using MindMapManager.Core.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using MindMapManager.Core.Entities;
 using MindMapManager.Core.Exceptions;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Infrastructure.DatabaseContext;
@@ -39,10 +40,28 @@ namespace MindMapManager.Infrastructure.Repository
             _context.CompletedTopics.Remove(completedTopic);
         }
 
+        public IQueryable<int> GetByRoadmap(int userId, int roadmapid)
+        {
+            return _context.CompletedTopics
+                    .Where(ct => ct.userId == userId && ct.Topic.LidNavigation.Rid == roadmapid)
+                    .Select(ct => ct.Id);
+        }
+
         public CompletedTopic? GetByUserAndTopic(int userId, int topicId)
         {
             return _context.CompletedTopics
                     .FirstOrDefault(ct => ct.userId == userId && ct.topicId == topicId);
+        }
+
+        public Dictionary<int, List<int>> GetCompletedTopicsForRoadmaps(int userId)
+        {
+           var result = _context.CompletedTopics
+                        .Where(ct => ct.userId == userId)
+                        .GroupBy(ct => ct.Topic.LidNavigation.Rid ?? 0)
+                        .ToDictionary(
+                           g => g.Key,
+                           g => g.Select(ct => ct.Id).ToList());
+            return result;
         }
 
         public string? GetLastTopicCompleted(int userId, int roadmapId)
@@ -53,6 +72,22 @@ namespace MindMapManager.Infrastructure.Repository
                 .OrderByDescending(x => x.Id)
                 .Select(x => x.Topic.Name)
                 .FirstOrDefault();
+        }
+
+        public Dictionary<int, string?> GetLastTopicsForRoadmaps(int userId)
+        {
+            var result = _context.CompletedTopics
+                        .Include(ct => ct.Topic)
+                        .Where(ct => ct.userId == userId)
+                        .GroupBy(ct => ct.Topic.LidNavigation.Rid ?? 0)
+                        .ToDictionary(
+                           g => g.Key,
+                           g => g.OrderByDescending(ct => ct.Id)
+                                 .Select(t => t.Topic.Name)
+                                 .FirstOrDefault()
+                        );
+
+            return result;
         }
 
         public bool IsCompleted(int userId, int topicId)

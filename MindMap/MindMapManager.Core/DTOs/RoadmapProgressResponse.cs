@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MindMapManager.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace MindMapManager.Core.DTOs
         public int roadmapId {  get; set; }
         public string roadmapName { get; set; }
         public string roadmapDescription { get; set; }
+        public IEnumerable<int> completedTopics { get; set; }
         public string lastTopicCompleted { get; set; }
         public int Percentage { get; set; }
         public IEnumerable<LevelProgressResponse> Levels { get; set; }

@@ -30,6 +30,7 @@ namespace MindMapManager.Infrastructure.Repository
                  .Include(ut => ut.Track)
                      .ThenInclude(t => t.Roadmaps)
                          .ThenInclude(r => r.Levels)
+                            .ThenInclude(l => l.Progresses)
                   .Where(ut => ut.userId == userId);
         }
 

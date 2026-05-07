@@ -61,37 +61,45 @@ namespace MindMapManager.Core.Services
             if (user == null || roadmap == null)
                 throw new BadRequestException("Invalid certificate data");
 
-            var code = Guid.NewGuid().ToString("N");
-            var fileName = $"{code}.pdf";
-            var DirectoryPath = Path.Combine(_environment.WebRootPath, "certificates");
-
-            if (!Directory.Exists(DirectoryPath))
-                Directory.CreateDirectory(DirectoryPath);
-
-            var fullPath = Path.Combine(DirectoryPath, fileName);
-
-            CertificatePdfGenerator.Generate(fullPath, user.FullName, roadmap.Name, DateTime.UtcNow, code);
-
-            var cert = new Certificate
+            try
             {
-                UserId = userId,
-                Rid = roadmapId,
-                CertUrl = $"certificates/{fileName}",
-                IssuedAt = DateTime.UtcNow,
-                CertificateCode = code
-            };
 
-            _certRepo.Add(cert);
-            _certRepo.Save();
+                var code = Guid.NewGuid().ToString("N");
+                var fileName = $"{code}.pdf";
+                var DirectoryPath = Path.Combine(_environment.WebRootPath, "certificates");
 
-            _notificationRepo.Add(new Notification()
+                if (!Directory.Exists(DirectoryPath))
+                    Directory.CreateDirectory(DirectoryPath);
+
+                var fullPath = Path.Combine(DirectoryPath, fileName);
+
+                CertificatePdfGenerator.Generate(fullPath, user.FullName, roadmap.Name, DateTime.UtcNow, code);
+
+                var cert = new Certificate
+                {
+                    UserId = userId,
+                    Rid = roadmapId,
+                    CertUrl = $"certificates/{fileName}",
+                    IssuedAt = DateTime.UtcNow,
+                    CertificateCode = code
+                };
+
+                _certRepo.Add(cert);
+                _certRepo.Save();
+
+                _notificationRepo.Add(new Notification()
+                {
+                    Message = "🎉 Congratulations! You’ve earned a new certificate!",
+                    CreatedAt = DateTime.UtcNow,
+                    Read = false,
+                    UserId = userId,
+                });
+                _notificationRepo.Save();
+            }
+            catch
             {
-                Message = "🎉 Congratulations! You’ve earned a new certificate!",
-                CreatedAt = DateTime.UtcNow,
-                Read = false,
-                UserId = userId,
-            });
-            _notificationRepo.Save();
+                throw;
+            }
         }
 
         private static CertificateResponse MapToResponse(Certificate cert) => new()

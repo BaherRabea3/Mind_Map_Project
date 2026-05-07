@@ -15,6 +15,8 @@ using MindMapManager.Core.Configuration;
 using MindMapManager.Core.RepositoryContracts;
 using MindMapManager.Infrastructure.Repository;
 using MindMapManager.WebAPI.Middlewares;
+using QuestPDF.Infrastructure;
+using QuestPDF;
 
 
 
@@ -156,6 +158,8 @@ namespace MindMapManager.WebAPI
                     }
                 });
             });
+
+           Settings.License = LicenseType.Community;
 
             var app = builder.Build();
 

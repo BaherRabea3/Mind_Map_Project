@@ -156,11 +156,14 @@ namespace MindMapManager.Core.Services
                 await _certificateService.AutoIssue(userId , roadmapId);
             }
 
+            var completedTopicsList = _completedTopicRepo.GetByRoadmap(userId, roadmapId).ToList();
+
             return new RoadmapProgressResponse()
             {
                 roadmapId = roadmap.Rid,
                 roadmapName = roadmap.Name,
                 roadmapDescription = roadmap.Description,
+                completedTopics = completedTopicsList,
                 lastTopicCompleted = lastTopicName,
                 Percentage = roundedPercentage,
                 Levels = roadmap.Levels.Select(l => new LevelProgressResponse()

@@ -17,7 +17,9 @@ namespace MindMapManager.Infrastructure.Repository
 
         public Certificate? GetById(int id, int userId)
         {
-            return _context.Certificates.FirstOrDefault(c => c.CertId == id && c.UserId == userId);
+            return _context.Certificates
+                .Include(c => c.RidNavigation)
+                .FirstOrDefault(c => c.CertId == id && c.UserId == userId);
         }
 
         public List<Certificate> GetByUserIdWithRoadmaps(int userId)

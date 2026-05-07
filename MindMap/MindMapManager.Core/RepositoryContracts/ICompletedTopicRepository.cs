@@ -15,6 +15,9 @@ namespace MindMapManager.Core.RepositoryContracts
         bool IsCompleted(int userId, int topicId);
         void Add(CompletedTopic completedTopic);
         CompletedTopic? GetByUserAndTopic(int userId, int topicId);
+        IQueryable<int> GetByRoadmap(int userId, int roadmapid);
+        Dictionary<int,string?> GetLastTopicsForRoadmaps(int userId);
+        Dictionary<int,List<int>> GetCompletedTopicsForRoadmaps(int userId);
         void Delete(int userId , int topicId);
         void Save();
     }

@@ -42,7 +42,6 @@ namespace MindMapManager.Core.Services
             if (!allowedFileExtension.Contains(ext))
                 throw new BadRequestException($"Only {string.Join(",", allowedFileExtension)} are allowed");
 
-
             if (imageFile.Length > 2 * 1024 * 1024)
                 throw new BadRequestException("File size must not exceed 2MB");
 

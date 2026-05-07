@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace MindMapManager.WebAPI.Controllers
 {
-    [Authorize(Roles = "Member")]
+    [Authorize(Roles = "Member,Admin")]
     public class UsersController : CustomControllerBase
     {
         private readonly IUsersService _usersService;

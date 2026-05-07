@@ -44,10 +44,13 @@ namespace MindMapManager.Core.Services
 
         public IEnumerable<TrackProgressResponse> GetUserProgress(int userid)
         {
-            var userTracks = _userTrackRepo.GetAllUserTracks(userid);
+            var userTracks = _userTrackRepo.GetAllUserTracks(userid).ToList();
 
             if(!userTracks.Any())
                 return Enumerable.Empty<TrackProgressResponse>();
+
+            var lastTopicForRoadmaps = _completedTopicRepo.GetLastTopicsForRoadmaps(userid);
+            var completedTopicsForRoadmaps = _completedTopicRepo.GetCompletedTopicsForRoadmaps(userid);
 
             var rawData = userTracks
                 .Select(ut => new
@@ -80,7 +83,8 @@ namespace MindMapManager.Core.Services
                     roadmapId = r.Rid,
                     roadmapName = r.Name,
                     roadmapDescription = r.Description,
-                    lastTopicCompleted = _completedTopicRepo.GetLastTopicCompleted(userid,r.Rid) ?? "no completed topic yet",
+                    completedTopics = completedTopicsForRoadmaps.GetValueOrDefault(r.Rid, new()),
+                    lastTopicCompleted = lastTopicForRoadmaps.GetValueOrDefault(r.Rid) ?? "no completed topic yet",
                     Percentage = (int)Math.Round(
                         r.Levels
                             .SelectMany(l => l.ProgressValues.DefaultIfEmpty(0))
